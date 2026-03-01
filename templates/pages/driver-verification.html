@@ -1,0 +1,16 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Driver Verification - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Driver Verification</h1>
+  <p>Upload required documents to receive your verified badge.</p>
+</section>
+<div class="card p-4 mb-3">
+  <p class="mb-0"><strong>Current status:</strong> {{ verification.get_background_check_status_display|default:'Not submitted' }}</p>
+</div>
+<form method="post" enctype="multipart/form-data" class="card p-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Submit verification</button>
+</form>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}User Management{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Search</label>
+      <input type="text" class="form-control" name="search" value="{{ filter_search }}" placeholder="Username, email, phone">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">User Type</label>
+      <select class="form-select" name="user_type">
+        <option value="">All</option>
+        <option value="driver" {% if filter_user_type == 'driver' %}selected{% endif %}>Driver</option>
+        <option value="tourist" {% if filter_user_type == 'tourist' %}selected{% endif %}>Passenger</option>
+        <option value="admin" {% if filter_user_type == 'admin' %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Verified</label>
+      <select class="form-select" name="verified">
+        <option value="">All</option>
+        <option value="yes" {% if filter_verified == 'yes' %}selected{% endif %}>Verified</option>
+        <option value="no" {% if filter_verified == 'no' %}selected{% endif %}>Not verified</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Joined From</label>
+      <input class="form-control" type="date" name="joined_from" value="{{ filter_joined_from }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Joined To</label>
+      <input class="form-control" type="date" name="joined_to" value="{{ filter_joined_to }}">
+    </div>
+    <div class="col-md-1 d-grid">
+      <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+  </form>
+</div>
+
+<div class="ad-content-card">
+  <h5 class="mb-3">Users</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+      <tr>
+        <th>ID</th><th>Username</th><th>Email</th><th>Phone</th><th>User Type</th><th>Verified</th><th>Joined</th><th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for user_obj in users %}
+        <tr>
+          <td>{{ user_obj.id }}</td>
+          <td>{{ user_obj.username }}{% if not user_obj.is_active %} <span class="badge text-bg-secondary">Suspended</span>{% endif %}</td>
+          <td>{{ user_obj.email }}</td>
+          <td>{% if user_obj.admin_profile %}{{ user_obj.admin_profile.phone_number|default:"-" }}{% else %}-{% endif %}</td>
+          <td>{% if user_obj.admin_profile %}{{ user_obj.admin_profile.get_user_type_display|default:"-" }}{% else %}-{% endif %}</td>
+          <td>{% if user_obj.admin_profile and user_obj.admin_profile.is_verified %}<span class="badge text-bg-success">Verified</span>{% else %}<span class="badge text-bg-warning">No</span>{% endif %}</td>
+          <td>{{ user_obj.date_joined|date:"Y-m-d" }}</td>
+          <td class="d-flex flex-wrap gap-1">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'profile_detail' user_obj.username %}" target="_blank">View</a>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal{{ user_obj.id }}">Details</button>
+            <form method="post" class="d-inline">{% csrf_token %}
+              <input type="hidden" name="user_id" value="{{ user_obj.id }}">
+              {% if user_obj.is_active %}
+                <input type="hidden" name="action" value="suspend"><button class="btn btn-sm btn-warning">Suspend</button>
+              {% else %}
+                <input type="hidden" name="action" value="activate"><button class="btn btn-sm btn-success">Activate</button>
+              {% endif %}
+            </form>
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user_obj.id }}">Delete</button>
+          </td>
+        </tr>
+
+        <div class="modal fade" id="userModal{{ user_obj.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">User Details - {{ user_obj.username }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <p><strong>Email:</strong> {{ user_obj.email }}</p>
+              <p><strong>Phone:</strong> {% if user_obj.admin_profile %}{{ user_obj.admin_profile.phone_number|default:"-" }}{% else %}-{% endif %}</p>
+              <p><strong>ID Number:</strong> {% if user_obj.admin_profile %}{{ user_obj.admin_profile.id_number|default:"-" }}{% else %}-{% endif %}</p>
+              <p><strong>Emergency Contact:</strong> {% if user_obj.admin_profile %}{{ user_obj.admin_profile.emergency_contact_name|default:"-" }} ({{ user_obj.admin_profile.emergency_contact_phone|default:"-" }}){% else %}-{% endif %}</p>
+              {% if user_obj.admin_verification %}
+                <hr>
+                <p class="mb-1"><strong>Verification Status:</strong> {{ user_obj.admin_verification.background_check_status }}</p>
+                {% if user_obj.admin_verification.national_id_upload %}<p class="mb-1"><a href="{{ user_obj.admin_verification.national_id_upload.url }}" target="_blank">National ID</a></p>{% endif %}
+                {% if user_obj.admin_verification.driver_license_upload %}<p class="mb-1"><a href="{{ user_obj.admin_verification.driver_license_upload.url }}" target="_blank">Driver License</a></p>{% endif %}
+                {% if user_obj.admin_verification.insurance_upload %}<p class="mb-1"><a href="{{ user_obj.admin_verification.insurance_upload.url }}" target="_blank">Insurance</a></p>{% endif %}
+              {% endif %}
+            </div>
+          </div></div>
+        </div>
+
+        <div class="modal fade" id="deleteUserModal{{ user_obj.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Confirm Delete</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">Delete user <strong>{{ user_obj.username }}</strong>? This action cannot be undone.</div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form method="post">{% csrf_token %}
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="user_id" value="{{ user_obj.id }}">
+                <button class="btn btn-danger" type="submit">Delete</button>
+              </form>
+            </div>
+          </div></div>
+        </div>
+      {% empty %}
+        <tr><td colspan="8">No users found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

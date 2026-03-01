@@ -1,0 +1,21 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Contact - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Contact Us</h1>
+  <p>Questions about tours, rides, bookings, or safety support? Reach out anytime.</p>
+</section>
+
+<div class="row justify-content-center">
+  <div class="col-xl-8">
+    <form method="post" class="card p-4">
+      {% csrf_token %}
+      <div class="mb-3"><label class="form-label">Name</label><input name="name" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Subject</label><input name="subject" class="form-control" required></div>
+      <div class="mb-3"><label class="form-label">Message</label><textarea name="message" class="form-control" rows="5" required></textarea></div>
+      <button class="btn btn-primary">Send message</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

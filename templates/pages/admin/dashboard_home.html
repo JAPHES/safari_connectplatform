@@ -1,0 +1,69 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}Dashboard Home{% endblock %}
+{% block admin_content %}
+<div class="row g-3 mb-3">
+  <div class="col-md-6 col-xl-4">
+    <div class="ad-stat"><small>Total Users</small><strong>{{ total_users }}</strong><div class="text-muted small">Drivers: {{ drivers_count }} | Passengers: {{ passengers_count }}</div></div>
+  </div>
+  <div class="col-md-6 col-xl-4"><div class="ad-stat"><small>Active Rides Today</small><strong>{{ active_rides_today }}</strong></div></div>
+  <div class="col-md-6 col-xl-4"><div class="ad-stat"><small>Pending Verifications</small><strong>{{ pending_verifications }}</strong></div></div>
+  <div class="col-md-6 col-xl-4"><div class="ad-stat"><small>Total Bookings (This Month)</small><strong>{{ bookings_this_month }}</strong></div></div>
+  <div class="col-md-6 col-xl-4"><div class="ad-stat"><small>SOS Alerts (Last 24h)</small><strong>{{ sos_last_24h }}</strong></div></div>
+  <div class="col-md-6 col-xl-4"><div class="ad-stat"><small>Unread Contact Messages</small><strong>{{ unread_contacts }}</strong></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="ad-content-card">
+      <h5 class="mb-3">User Signups (Last 30 Days)</h5>
+      <canvas id="signupChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="ad-content-card mb-3">
+      <h5 class="mb-3">Rides by Route</h5>
+      <canvas id="routeChart" height="120"></canvas>
+    </div>
+    <div class="ad-content-card">
+      <h5 class="mb-3">Booking Status</h5>
+      <canvas id="bookingStatusChart" height="120"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block admin_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const signupLabels = {{ signup_labels_json|safe }};
+  const signupValues = {{ signup_values_json|safe }};
+  const routeLabels = {{ route_labels_json|safe }};
+  const routeValues = {{ route_values_json|safe }};
+  const bookingLabels = {{ booking_status_labels_json|safe }};
+  const bookingValues = {{ booking_status_values_json|safe }};
+
+  new Chart(document.getElementById("signupChart"), {
+    type: "line",
+    data: {
+      labels: signupLabels,
+      datasets: [{ label: "Signups", data: signupValues, borderColor: "#2563eb", fill: false, tension: 0.25 }]
+    }
+  });
+
+  new Chart(document.getElementById("routeChart"), {
+    type: "bar",
+    data: {
+      labels: routeLabels,
+      datasets: [{ label: "Rides", data: routeValues, backgroundColor: "#1d4ed8" }]
+    },
+    options: { indexAxis: "y", plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById("bookingStatusChart"), {
+    type: "pie",
+    data: {
+      labels: bookingLabels,
+      datasets: [{ data: bookingValues, backgroundColor: ["#2563eb", "#f59e0b", "#ef4444"] }]
+    }
+  });
+</script>
+{% endblock %}

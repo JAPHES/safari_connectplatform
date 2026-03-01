@@ -1,0 +1,75 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Safety Tips - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Safety FAQ</h1>
+  <p>Click any question to view practical safety guidance before and during your ride.</p>
+</section>
+
+<div class="accordion shadow-sm" id="safetyFaq">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="faqOneHeading">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne" aria-expanded="true" aria-controls="faqOne">
+        How do I confirm a driver is trustworthy before booking?
+      </button>
+    </h2>
+    <div id="faqOne" class="accordion-collapse collapse show" aria-labelledby="faqOneHeading" data-bs-parent="#safetyFaq">
+      <div class="accordion-body">
+        Check the driver's verification badge, trip history, and rating. Prefer drivers with clear profiles and consistent positive reviews.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="faqTwoHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+        What should I do before I get into the car?
+      </button>
+    </h2>
+    <div id="faqTwo" class="accordion-collapse collapse" aria-labelledby="faqTwoHeading" data-bs-parent="#safetyFaq">
+      <div class="accordion-body">
+        Confirm the vehicle plate number, driver name, and route details in the app before boarding. If anything does not match, do not continue.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="faqThreeHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+        Should I share my trip with someone?
+      </button>
+    </h2>
+    <div id="faqThree" class="accordion-collapse collapse" aria-labelledby="faqThreeHeading" data-bs-parent="#safetyFaq">
+      <div class="accordion-body">
+        Yes. Share your booking details and estimated arrival time with a trusted contact before departure.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="faqFourHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqFour" aria-expanded="false" aria-controls="faqFour">
+        What if I feel unsafe during the ride?
+      </button>
+    </h2>
+    <div id="faqFour" class="accordion-collapse collapse" aria-labelledby="faqFourHeading" data-bs-parent="#safetyFaq">
+      <div class="accordion-body">
+        Use the SOS feature immediately, contact emergency services, and move to a public area if possible.
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="faqFiveHeading">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqFive" aria-expanded="false" aria-controls="faqFive">
+        How can I keep my payments and account secure?
+      </button>
+    </h2>
+    <div id="faqFive" class="accordion-collapse collapse" aria-labelledby="faqFiveHeading" data-bs-parent="#safetyFaq">
+      <div class="accordion-body">
+        Only pay through approved channels, avoid sharing passwords or OTP codes, and report suspicious requests to support.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

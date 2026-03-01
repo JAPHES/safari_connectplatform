@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block admin_title %}Admin Dashboard{% endblock %} - SafariConnect</title>
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <style>
+    :root {
+      --ad-bg: #f4f6fb;
+      --ad-surface: #ffffff;
+      --ad-sidebar: #1f2937;
+      --ad-accent: #2563eb;
+      --ad-muted: #6b7280;
+    }
+
+    body {
+      margin: 0;
+      background: var(--ad-bg);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .ad-shell {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .ad-sidebar {
+      width: 270px;
+      background: var(--ad-sidebar);
+      color: #e5e7eb;
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .ad-brand {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .ad-menu a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      color: #d1d5db;
+      text-decoration: none;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.55rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    .ad-menu a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .ad-menu a.active {
+      background: #334155;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .ad-main {
+      flex: 1;
+      min-width: 0;
+      padding: 1rem 1.1rem;
+    }
+
+    .ad-topbar {
+      background: var(--ad-surface);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.8rem;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .ad-content-card {
+      background: var(--ad-surface);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.8rem;
+      padding: 1rem;
+    }
+
+    .ad-stat {
+      background: var(--ad-surface);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.8rem;
+      padding: 0.9rem;
+      height: 100%;
+    }
+
+    .ad-stat small {
+      color: var(--ad-muted);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .ad-stat strong {
+      font-size: 1.35rem;
+    }
+
+    .ad-badge {
+      background: rgba(37, 99, 235, 0.18);
+      color: #dbeafe;
+      border-radius: 999px;
+      padding: 0.08rem 0.45rem;
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 992px) {
+      .ad-sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="ad-shell">
+  <aside class="ad-sidebar">
+    <div class="ad-brand">SafariConnect Admin</div>
+    <nav class="ad-menu">
+      <a href="{% url 'admin_dashboard' %}" class="{% if active_tab == 'dashboard' %}active{% endif %}">
+        <span><i class="bi bi-speedometer2 me-2"></i>Dashboard Home</span>
+      </a>
+      <a href="{% url 'admin_users' %}" class="{% if active_tab == 'users' %}active{% endif %}">
+        <span><i class="bi bi-people me-2"></i>User Management</span>
+      </a>
+      <a href="{% url 'admin_rides' %}" class="{% if active_tab == 'rides' %}active{% endif %}">
+        <span><i class="bi bi-car-front me-2"></i>Ride Management</span>
+      </a>
+      <a href="{% url 'admin_bookings' %}" class="{% if active_tab == 'bookings' %}active{% endif %}">
+        <span><i class="bi bi-receipt me-2"></i>Booking Management</span>
+      </a>
+      <a href="{% url 'admin_verifications' %}" class="{% if active_tab == 'verifications' %}active{% endif %}">
+        <span><i class="bi bi-patch-check me-2"></i>Verification Requests</span>
+        {% if pending_verifications_count %}<span class="ad-badge">{{ pending_verifications_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_sos_alerts' %}" class="{% if active_tab == 'sos' %}active{% endif %}">
+        <span><i class="bi bi-exclamation-triangle me-2"></i>SOS Alerts</span>
+        {% if open_sos_count %}<span class="ad-badge">{{ open_sos_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_reviews' %}" class="{% if active_tab == 'reviews' %}active{% endif %}">
+        <span><i class="bi bi-chat-square-quote me-2"></i>Reviews Moderation</span>
+      </a>
+      <a href="{% url 'admin_contact_messages' %}" class="{% if active_tab == 'contacts' %}active{% endif %}">
+        <span><i class="bi bi-envelope me-2"></i>Contact Messages</span>
+        {% if unread_contacts_count %}<span class="ad-badge">{{ unread_contacts_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_reports' %}" class="{% if active_tab == 'reports' %}active{% endif %}">
+        <span><i class="bi bi-bar-chart me-2"></i>Reports</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="ad-main">
+    <div class="ad-topbar">
+      <div>
+        <strong>Welcome {{ request.user.get_full_name|default:request.user.username }}</strong>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'home' %}">Back to site</a>
+        <form method="post" action="{% url 'logout' %}" class="m-0">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-danger" type="submit">Logout</button>
+        </form>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} mb-2">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+{% block admin_js %}{% endblock %}
+</body>
+</html>

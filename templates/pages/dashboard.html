@@ -1,0 +1,68 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Dashboard - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Dashboard</h1>
+  <p>Your activity overview across rides, bookings, messages, and verification.</p>
+</section>
+
+<div class="card p-3 mb-4">
+  <div class="d-flex align-items-center gap-3">
+    {% if profile.avatar %}
+      <img src="{{ profile.avatar.url }}?v={{ profile.updated_at|date:'U' }}" alt="Your profile avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+    {% else %}
+      <div class="d-flex align-items-center justify-content-center rounded-circle border" style="width: 64px; height: 64px;">
+        <i class="bi bi-person-circle fs-3 text-muted"></i>
+      </div>
+    {% endif %}
+    <div>
+      <h5 class="mb-1">{{ request.user.username }}</h5>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'profile_update' request.user.username %}">Update profile photo</a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Rides Offered</small><strong>{{ rides_offered }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Ride Bookings</small><strong>{{ ride_bookings }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Tour Bookings</small><strong>{{ tour_bookings }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Unread Messages</small><strong>{{ unread_messages }}</strong></div></div>
+</div>
+
+<div class="card p-4">
+  <h5 class="mb-3">Verification Status</h5>
+  <div class="row g-2 mb-3">
+    <div class="col-md-6"><span class="text-muted">Profile verified:</span> {{ verification.profile_verified }}</div>
+    <div class="col-md-6"><span class="text-muted">Email verified:</span> {{ verification.email_verified }}</div>
+    <div class="col-md-6"><span class="text-muted">Driver verified:</span> {{ verification.driver_verified }}</div>
+    <div class="col-md-6"><span class="text-muted">Background check:</span> {{ verification.background_check_status }}</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-primary" href="{% url 'profile_detail' request.user.username %}">View profile</a>
+    <a class="btn btn-outline-secondary" href="{% url 'my_bookings' %}">My bookings</a>
+    <a class="btn btn-outline-secondary" href="{% url 'my_rides' %}">My rides</a>
+  </div>
+</div>
+
+<div class="card p-4 mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Message Notifications</h5>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'notifications' %}">View all</a>
+  </div>
+  {% if recent_unread_messages %}
+    <div class="list-group">
+      {% for msg in recent_unread_messages %}
+        <a href="{% url 'ride_detail' msg.ride.pk %}" class="list-group-item list-group-item-action">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong>From {{ msg.sender.username }}</strong>
+            <small class="text-muted">{{ msg.sent_at|date:"Y-m-d H:i" }}</small>
+          </div>
+          <div class="small text-muted mt-1">Ride #{{ msg.ride.pk }}: {{ msg.body|truncatechars:110 }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted mb-0">No unread message notifications.</p>
+  {% endif %}
+</div>
+{% endblock %}

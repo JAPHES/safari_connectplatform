@@ -1,0 +1,596 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SafariConnect{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+  <style>
+    :root {
+      --sc-sidebar-bg: #1c2a1f;
+      --sc-sidebar-accent: #f0a35e;
+      --sc-sidebar-text: #f7f8f6;
+      --sc-sidebar-muted: #c4cfc3;
+      --sc-page-bg: #f5f1e8;
+      --sc-surface: #ffffff;
+      --sc-text: #243129;
+      --sc-muted: #5b6a60;
+      --sc-border: #e8e2d4;
+      --sc-primary: #cf7a2f;
+      --sc-primary-dark: #a55f23;
+      --sc-success: #2f7a57;
+      --sc-danger: #b93d2e;
+      --sc-shadow: 0 10px 30px rgba(45, 58, 46, 0.09);
+    }
+
+    body {
+      font-family: "Manrope", sans-serif;
+      background: var(--sc-page-bg);
+      color: var(--sc-text);
+      background-image:
+        radial-gradient(circle at 5% 10%, rgba(240, 163, 94, 0.13), transparent 32%),
+        radial-gradient(circle at 95% 90%, rgba(53, 103, 73, 0.12), transparent 28%);
+    }
+
+    .sc-topbar {
+      background: linear-gradient(90deg, #233224, #374a35);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sc-topbar .navbar-brand {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      font-size: 1.15rem;
+    }
+
+    .sc-notif-btn {
+      position: relative;
+    }
+
+    .sc-notif-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.7rem;
+      line-height: 18px;
+      text-align: center;
+      display: none;
+    }
+
+    .sc-user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.2rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .sc-user-chip:hover,
+    .sc-user-chip:focus {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .sc-user-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .sc-shell {
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sc-sidebar {
+      width: 290px;
+      background: var(--sc-sidebar-bg);
+      color: var(--sc-sidebar-text);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sc-sidebar .brand {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .sc-sidebar .brand h5 {
+      margin: 0;
+      color: #fff;
+      font-family: "Playfair Display", serif;
+      letter-spacing: 0.3px;
+    }
+
+    .sc-sidebar .brand p {
+      margin: 0.25rem 0 0;
+      color: var(--sc-sidebar-muted);
+      font-size: 0.85rem;
+    }
+
+    .sc-sidebar .section-title {
+      margin: 1rem 1.25rem 0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sc-sidebar-muted);
+    }
+
+    .sc-nav {
+      padding: 0 0.75rem 1rem;
+    }
+
+    .sc-nav a {
+      color: var(--sc-sidebar-text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 0.2rem;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .sc-nav a:hover,
+    .sc-nav a:focus {
+      background: rgba(244, 162, 97, 0.18);
+      color: #fff;
+      transform: translateX(3px);
+    }
+
+    .sc-main {
+      flex: 1;
+      min-width: 0;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .sc-mobile-menu .offcanvas-header {
+      background: var(--sc-sidebar-bg);
+      color: #fff;
+    }
+
+    .sc-mobile-menu .offcanvas-body {
+      background: var(--sc-sidebar-bg);
+      color: var(--sc-sidebar-text);
+    }
+
+    .sc-page-header {
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(248, 244, 235, 0.88));
+      border: 1px solid var(--sc-border);
+      border-radius: 1rem;
+      box-shadow: var(--sc-shadow);
+      padding: 1.4rem 1.4rem 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .sc-page-header h1 {
+      font-family: "Playfair Display", serif;
+      letter-spacing: 0.2px;
+      margin-bottom: 0.35rem;
+    }
+
+    .sc-page-header p {
+      color: var(--sc-muted);
+      margin: 0;
+    }
+
+    .card,
+    .sc-surface {
+      border-radius: 1rem;
+      border: 1px solid var(--sc-border);
+      box-shadow: var(--sc-shadow);
+      background: var(--sc-surface);
+    }
+
+    .card-title,
+    h2, h3, h4, h5 {
+      color: var(--sc-text);
+    }
+
+    .btn {
+      border-radius: 0.75rem;
+      font-weight: 600;
+      padding: 0.52rem 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--sc-primary), var(--sc-primary-dark));
+      border-color: var(--sc-primary-dark);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: linear-gradient(135deg, #c36e24, #94541d);
+      border-color: #894d1a;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--sc-success), #256147);
+      border-color: #245a44;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--sc-danger), #953226);
+      border-color: #8a2e23;
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 0.75rem;
+      border-color: #d8d5c8;
+      padding: 0.58rem 0.72rem;
+      background-color: #fffefc;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #e6a267;
+      box-shadow: 0 0 0 0.2rem rgba(230, 162, 103, 0.22);
+    }
+
+    .table {
+      --bs-table-bg: transparent;
+      border-color: #ece5d8;
+    }
+
+    .table thead th {
+      background: #f3ecdf;
+      color: #304036;
+      border-bottom: 0;
+      font-weight: 700;
+    }
+
+    .table td, .table th {
+      vertical-align: middle;
+    }
+
+    .list-group-item {
+      border-color: var(--sc-border);
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .alert {
+      border-radius: 0.75rem;
+      border: 1px solid transparent;
+    }
+
+    .sc-metric {
+      padding: 1.05rem 1.1rem;
+    }
+
+    .sc-metric small {
+      color: var(--sc-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .sc-metric strong {
+      display: block;
+      font-size: 1.65rem;
+      margin-top: 0.25rem;
+    }
+
+    .sc-footer {
+      margin-top: 1.25rem;
+      border: 1px solid var(--sc-border);
+      border-radius: 1rem;
+      background: linear-gradient(130deg, #223126, #31463a);
+      color: #e9efe8;
+      box-shadow: var(--sc-shadow);
+    }
+
+    .sc-footer a {
+      color: #f5d9bf;
+      text-decoration: none;
+    }
+
+    .sc-footer .footer-link-btn {
+      color: #f5d9bf;
+      text-decoration: none;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      text-align: left;
+    }
+
+    .sc-footer a:hover,
+    .sc-footer a:focus,
+    .sc-footer .footer-link-btn:hover,
+    .sc-footer .footer-link-btn:focus {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .sc-footer .footer-title {
+      font-family: "Playfair Display", serif;
+      letter-spacing: 0.2px;
+      margin-bottom: 0.7rem;
+      color: #ffffff;
+    }
+
+    .sc-footer .footer-muted {
+      color: #c7d6c7;
+      margin: 0;
+    }
+
+    @media (max-width: 991.98px) {
+      .sc-main {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-dark sc-topbar px-2 px-lg-3">
+  <div class="container">
+    <button class="btn btn-outline-light d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+      <i class="bi bi-list"></i>
+    </button>
+    <a class="navbar-brand" href="{% url 'home' %}">SafariConnect</a>
+    <div class="d-flex align-items-center gap-2">
+      {% if request.user.is_authenticated %}
+        <a class="btn btn-sm btn-outline-light sc-notif-btn" href="{% url 'notifications' %}" id="scNotificationsBtn" title="Notifications">
+          <i class="bi bi-bell"></i>
+          <span id="scUnreadBadge" class="sc-notif-badge">0</span>
+        </a>
+        {% if request.user.is_superuser %}
+          <a class="btn btn-sm btn-warning" href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+        {% endif %}
+        <a class="sc-user-chip" href="{% url 'profile_detail' request.user.username %}">
+          {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="Profile avatar" class="sc-user-avatar">
+          {% else %}
+            <i class="bi bi-person-circle"></i>
+          {% endif %}
+          <span class="small">{{ request.user.username }}</span>
+        </a>
+        <a class="btn btn-sm btn-light" href="{% url 'dashboard' %}">Dashboard</a>
+        <form method="post" action="{% url 'logout' %}" class="m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-light">Logout</button>
+        </form>
+      {% else %}
+        <a class="btn btn-sm btn-light" href="{% url 'login' %}">Login</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-start sc-mobile-menu" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="mobileNavLabel">SafariConnect Menu</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="sc-nav p-0">
+      <a href="{% url 'home' %}"><i class="bi bi-house-door"></i> Home</a>
+      <a href="{% url 'about' %}"><i class="bi bi-info-circle"></i> About</a>
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'destinations' %}"><i class="bi bi-geo-alt"></i> Destinations</a>
+        <a href="{% url 'tours' %}"><i class="bi bi-map"></i> Tours</a>
+        <a href="{% url 'contact' %}"><i class="bi bi-envelope"></i> Contact</a>
+        <a href="{% url 'ride_list' %}"><i class="bi bi-search"></i> Find a Ride</a>
+        {% if request.user.is_superuser or request.user.profile.user_type == 'driver' and request.user.profile.is_verified and request.user.driver_verification.verified_badge and request.user.driver_verification.background_check_status == 'approved' %}
+          <a href="{% url 'offer_ride' %}"><i class="bi bi-plus-circle"></i> Offer a Ride</a>
+        {% endif %}
+        <a href="{% url 'notifications' %}"><i class="bi bi-bell"></i> Notifications</a>
+        <a href="{% url 'my_rides' %}"><i class="bi bi-car-front"></i> My Rides</a>
+        <a href="{% url 'my_bookings' %}"><i class="bi bi-receipt"></i> My Bookings</a>
+        <a href="{% url 'vehicle_create' %}"><i class="bi bi-truck"></i> Add Vehicle</a>
+        <a href="{% url 'become_guide' %}"><i class="bi bi-person-badge"></i> Become Guide</a>
+        <a href="{% url 'sos_alert' %}"><i class="bi bi-exclamation-triangle"></i> SOS Emergency</a>
+        <a href="{% url 'how_it_works' %}"><i class="bi bi-signpost"></i> How It Works</a>
+        <a href="{% url 'safety_tips' %}"><i class="bi bi-shield-check"></i> Safety Tips</a>
+        <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="{% url 'profile_detail' request.user.username %}"><i class="bi bi-person"></i> My Profile</a>
+        {% if request.user.is_superuser %}
+          <a href="{% url 'admin_dashboard' %}"><i class="bi bi-kanban"></i> Admin Dashboard</a>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'register' %}"><i class="bi bi-person-plus"></i> Sign Up</a>
+        <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Sign In</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="sc-shell">
+    <aside class="sc-sidebar d-none d-lg-block">
+      <div class="brand">
+        <h5>SafariConnect</h5>
+        <p>Tour + Ride platform</p>
+      </div>
+
+      <p class="section-title">Explore</p>
+      <nav class="sc-nav">
+        <a href="{% url 'home' %}"><i class="bi bi-house-door"></i> Home</a>
+        <a href="{% url 'about' %}"><i class="bi bi-info-circle"></i> About</a>
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'destinations' %}"><i class="bi bi-geo-alt"></i> Destinations</a>
+          <a href="{% url 'tours' %}"><i class="bi bi-map"></i> Tours</a>
+          <a href="{% url 'contact' %}"><i class="bi bi-envelope"></i> Contact</a>
+        {% else %}
+          <a href="{% url 'register' %}"><i class="bi bi-person-plus"></i> Sign Up</a>
+          <a href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Sign In</a>
+        {% endif %}
+      </nav>
+
+      {% if request.user.is_authenticated %}
+        <p class="section-title">Rides</p>
+        <nav class="sc-nav">
+          <a href="{% url 'ride_list' %}"><i class="bi bi-search"></i> Find a Ride</a>
+          {% if request.user.is_superuser or request.user.profile.user_type == 'driver' and request.user.profile.is_verified and request.user.driver_verification.verified_badge and request.user.driver_verification.background_check_status == 'approved' %}
+            <a href="{% url 'offer_ride' %}"><i class="bi bi-plus-circle"></i> Offer a Ride</a>
+          {% endif %}
+          <a href="{% url 'notifications' %}"><i class="bi bi-bell"></i> Notifications</a>
+          <a href="{% url 'my_rides' %}"><i class="bi bi-car-front"></i> My Rides</a>
+          <a href="{% url 'my_bookings' %}"><i class="bi bi-receipt"></i> My Bookings</a>
+          <a href="{% url 'vehicle_create' %}"><i class="bi bi-truck"></i> Add Vehicle</a>
+        </nav>
+
+        <p class="section-title">Support</p>
+        <nav class="sc-nav">
+          <a href="{% url 'become_guide' %}"><i class="bi bi-person-badge"></i> Become Guide</a>
+          <a href="{% url 'sos_alert' %}"><i class="bi bi-exclamation-triangle"></i> SOS Emergency</a>
+          <a href="{% url 'how_it_works' %}"><i class="bi bi-signpost"></i> How It Works</a>
+          <a href="{% url 'safety_tips' %}"><i class="bi bi-shield-check"></i> Safety Tips</a>
+          <a href="{% url 'dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+          <a href="{% url 'profile_detail' request.user.username %}"><i class="bi bi-person"></i> My Profile</a>
+          {% if request.user.is_superuser %}
+            <a href="{% url 'admin_dashboard' %}"><i class="bi bi-kanban"></i> Admin Dashboard</a>
+          {% endif %}
+        </nav>
+      {% endif %}
+    </aside>
+
+    <div class="sc-main">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+
+      <footer class="sc-footer p-4 p-md-4">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <h5 class="footer-title">SafariConnect</h5>
+            <p class="footer-muted">Trusted tours and rides across Kenya for safer, smoother travel planning.</p>
+          </div>
+          <div class="col-md-3">
+            <h6 class="footer-title h6">Quick Links</h6>
+            <div class="d-flex flex-column gap-1">
+              <a href="{% url 'home' %}">Home</a>
+              <a href="{% url 'about' %}">About</a>
+              <a href="{% url 'how_it_works' %}">How It Works</a>
+              <a href="{% url 'safety_tips' %}">Safety Tips</a>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <h6 class="footer-title h6">Travel Hubs</h6>
+            <p class="footer-muted">Nairobi</p>
+            <p class="footer-muted">Mombasa</p>
+            <p class="footer-muted">Nakuru</p>
+            <p class="footer-muted">Kisumu</p>
+          </div>
+          <div class="col-md-2">
+            <h6 class="footer-title h6">Account</h6>
+            <div class="d-flex flex-column gap-1">
+              <a href="{% url 'login' %}">Sign In</a>
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'my_bookings' %}">My Bookings</a>
+                {% if request.user.is_superuser %}
+                  <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}" class="m-0">
+                  {% csrf_token %}
+                  <button type="submit" class="footer-link-btn">Logout</button>
+                </form>
+              {% else %}
+                <a href="{% url 'register' %}">Sign Up</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <hr class="border-light border-opacity-25 my-3">
+        <p class="footer-muted small mb-0">&copy; {% now "Y" %} SafariConnect. All rights reserved.</p>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll('input[type="password"]').forEach(function (input, idx) {
+      if (input.dataset.passwordToggleReady === "1") {
+        return;
+      }
+      input.dataset.passwordToggleReady = "1";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "input-group";
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "btn btn-outline-secondary";
+      button.setAttribute("aria-label", "Show password");
+      button.setAttribute("title", "Show password");
+      button.innerHTML = '<i class="bi bi-eye"></i>';
+
+      button.addEventListener("click", function () {
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        button.setAttribute("title", show ? "Hide password" : "Show password");
+        button.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+      });
+
+      wrapper.appendChild(button);
+    });
+  });
+
+  {% if request.user.is_authenticated %}
+  document.addEventListener("DOMContentLoaded", function () {
+    const badge = document.getElementById("scUnreadBadge");
+    if (!badge) return;
+
+    const endpoint = "{% url 'api_unread_notifications' %}";
+    const refreshUnreadCount = function () {
+      fetch(endpoint, { credentials: "same-origin" })
+        .then(function (response) {
+          if (!response.ok) return null;
+          return response.json();
+        })
+        .then(function (data) {
+          if (!data || typeof data.unread_count !== "number") return;
+          const count = data.unread_count;
+          if (count > 0) {
+            badge.style.display = "inline-block";
+            badge.textContent = count > 99 ? "99+" : String(count);
+          } else {
+            badge.style.display = "none";
+            badge.textContent = "0";
+          }
+        })
+        .catch(function () {});
+    };
+
+    refreshUnreadCount();
+    setInterval(refreshUnreadCount, 25000);
+  });
+  {% endif %}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

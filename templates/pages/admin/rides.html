@@ -1,0 +1,67 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}Ride Management{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All</option>
+        <option value="scheduled" {% if filter_status == 'scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="in_progress" {% if filter_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="completed" {% if filter_status == 'completed' %}selected{% endif %}>Completed</option>
+        <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </div>
+    <div class="col-md-3"><label class="form-label">Date From</label><input type="date" class="form-control" name="date_from" value="{{ filter_date_from }}"></div>
+    <div class="col-md-3"><label class="form-label">Date To</label><input type="date" class="form-control" name="date_to" value="{{ filter_date_to }}"></div>
+    <div class="col-md-3 d-grid"><button class="btn btn-primary" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="ad-content-card">
+  <h5 class="mb-3">Rides</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+      <tr><th>ID</th><th>Driver</th><th>Route</th><th>Departure</th><th>Seats</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+      {% for ride in rides %}
+        <tr>
+          <td>{{ ride.id }}</td>
+          <td>{{ ride.driver.username }}</td>
+          <td>{{ ride.departure_location }} -> {{ ride.destination_location }}</td>
+          <td>{{ ride.departure_datetime|date:"Y-m-d H:i" }}</td>
+          <td>{{ ride.seats_remaining }}/{{ ride.available_seats }}</td>
+          <td><span class="badge text-bg-secondary">{{ ride.get_status_display }}</span></td>
+          <td>{{ ride.created_at|date:"Y-m-d" }}</td>
+          <td class="d-flex gap-1 flex-wrap">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'ride_detail' ride.id %}" target="_blank">View</a>
+            <form method="post">{% csrf_token %}<input type="hidden" name="ride_id" value="{{ ride.id }}"><input type="hidden" name="action" value="cancel"><button class="btn btn-sm btn-warning" type="submit">Cancel Ride</button></form>
+            <form method="post">{% csrf_token %}<input type="hidden" name="ride_id" value="{{ ride.id }}"><input type="hidden" name="action" value="contact_driver"><button class="btn btn-sm btn-outline-secondary" type="submit">Contact Driver</button></form>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan="7">
+            <details>
+              <summary>Booked passengers</summary>
+              <div class="mt-2">
+                {% for booking in ride.bookings.all %}
+                  <div class="small">{{ booking.passenger.username }} | seats: {{ booking.seats_booked }} | status: {{ booking.booking_status }}</div>
+                {% empty %}
+                  <div class="small text-muted">No bookings yet.</div>
+                {% endfor %}
+              </div>
+            </details>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">No rides found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

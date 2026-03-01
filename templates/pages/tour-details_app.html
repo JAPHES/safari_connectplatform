@@ -1,0 +1,30 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Tour Details - SafariConnect{% endblock %}
+{% block content %}
+{% if tour %}
+<section class="sc-page-header">
+  <h1>{{ tour.title }}</h1>
+  <p>{{ tour.duration_days }} days | KES {{ tour.price }}</p>
+</section>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card p-4 h-100">
+      <h4>Overview</h4>
+      <p>{{ tour.description }}</p>
+      <h5 class="mt-2">Itinerary</h5>
+      <p class="mb-0">{{ tour.itinerary }}</p>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card p-4">
+      <h5>Ready to go?</h5>
+      <p class="text-muted">Secure your tour today and get confirmation instantly.</p>
+      <a class="btn btn-primary w-100" href="{% url 'tour_booking' tour.slug %}">Book this tour</a>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="card p-4"><p class="mb-0">Tour not found.</p></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}SOS Alerts{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All</option>
+        <option value="open" {% if filter_status == 'open' %}selected{% endif %}>Open</option>
+        <option value="acknowledged" {% if filter_status == 'acknowledged' %}selected{% endif %}>Acknowledged</option>
+        <option value="resolved" {% if filter_status == 'resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary">Apply</button></div>
+  </form>
+</div>
+
+<div class="ad-content-card">
+  <h5 class="mb-3">SOS Alerts</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>User</th><th>Location</th><th>Timestamp</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for alert in alerts %}
+        <tr class="{% if alert.status != 'resolved' %}table-danger{% endif %}">
+          <td>{{ alert.user.username }}</td>
+          <td>{{ alert.latitude }}, {{ alert.longitude }}</td>
+          <td>{{ alert.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{{ alert.get_status_display }}</td>
+          <td class="d-flex flex-wrap gap-1">
+            <form method="post">{% csrf_token %}<input type="hidden" name="alert_id" value="{{ alert.id }}"><input type="hidden" name="action" value="ack"><button class="btn btn-sm btn-warning">Acknowledge</button></form>
+            <form method="post">{% csrf_token %}<input type="hidden" name="alert_id" value="{{ alert.id }}"><input type="hidden" name="action" value="resolve"><button class="btn btn-sm btn-success">Resolve</button></form>
+            <form method="post">{% csrf_token %}<input type="hidden" name="alert_id" value="{{ alert.id }}"><input type="hidden" name="action" value="contact"><button class="btn btn-sm btn-outline-primary">Contact User</button></form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5">No SOS alerts found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Ride Details - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Ride #{{ ride.id }}</h1>
+  <p>{{ ride.departure_location }} to {{ ride.destination_location }} | {{ ride.get_status_display }}</p>
+</section>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card p-4">
+      <h4 class="mb-3">Trip Information</h4>
+      <p><strong>Route:</strong> {{ ride.departure_location }} to {{ ride.destination_location }}</p>
+      <p><strong>Departure:</strong> {{ ride.departure_datetime }}</p>
+      <p><strong>Driver:</strong> <a href="{% url 'profile_detail' ride.driver.username %}">{{ ride.driver.username }}</a> ({{ driver_rating }}/5)</p>
+      <p><strong>Vehicle:</strong> {% if ride.vehicle %}{{ ride.vehicle }}{% else %}Not assigned{% endif %}</p>
+      <p><strong>Price per seat:</strong> KES {{ ride.price_per_seat }}</p>
+      <p><strong>Seats remaining:</strong> {{ ride.seats_remaining }}</p>
+      <p class="mb-0"><strong>Notes:</strong> {{ ride.notes|default:"No extra notes" }}</p>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    {% if request.user.is_authenticated %}
+      <div class="card p-4 mb-3">
+        <h5>Book seats</h5>
+        <form method="post" action="{% url 'book_ride' ride.pk %}">
+          {% csrf_token %}
+          {{ booking_form.as_p }}
+          <button class="btn btn-success w-100">Book now</button>
+        </form>
+      </div>
+      <div class="card p-4">
+        <h5>Message driver</h5>
+        <form id="messageForm" method="post" action="{% url 'send_ride_message' ride.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="recipient_id" id="recipientIdField" value="">
+          {{ message_form.as_p }}
+          <div class="small text-muted mb-2" id="replyHint">Sending to: Driver ({{ ride.driver.username }})</div>
+          <button class="btn btn-outline-primary w-100">Send message</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="card p-4"><p class="mb-0"><a href="{% url 'login' %}">Login</a> to book this ride.</p></div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+  <div class="card p-4 mt-4">
+    <h5 class="mb-3">Conversation</h5>
+    {% if messages_thread %}
+      <div class="d-flex flex-column gap-2">
+        {% for msg in messages_thread %}
+          <div class="border rounded p-3 {% if msg.recipient == request.user and not msg.is_read %}border-warning{% endif %}">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <div class="small">
+                <strong>{{ msg.sender.username }}</strong> to <strong>{{ msg.recipient.username }}</strong>
+              </div>
+              <small class="text-muted">{{ msg.sent_at|date:"Y-m-d H:i" }}</small>
+            </div>
+            <p class="mb-2">{{ msg.body }}</p>
+            {% if request.user == ride.driver and msg.sender != request.user %}
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary js-reply-btn"
+                data-recipient-id="{{ msg.sender.id }}"
+                data-recipient-name="{{ msg.sender.username }}"
+              >
+                Reply
+              </button>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">No conversation yet.</p>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("messageForm");
+    if (!form) return;
+    const recipientField = document.getElementById("recipientIdField");
+    const replyHint = document.getElementById("replyHint");
+    const bodyField = form.querySelector('textarea[name="body"]');
+
+    document.querySelectorAll(".js-reply-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        recipientField.value = btn.dataset.recipientId;
+        replyHint.textContent = "Replying to: " + btn.dataset.recipientName;
+        if (bodyField) {
+          bodyField.focus();
+        }
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+  });
+</script>
+{% endblock %}

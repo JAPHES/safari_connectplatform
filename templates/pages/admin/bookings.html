@@ -1,0 +1,54 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}Booking Management{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All</option>
+        <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="confirmed" {% if filter_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+        <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </div>
+    <div class="col-md-3"><label class="form-label">From</label><input class="form-control" type="date" name="date_from" value="{{ filter_date_from }}"></div>
+    <div class="col-md-3"><label class="form-label">To</label><input class="form-control" type="date" name="date_to" value="{{ filter_date_to }}"></div>
+    <div class="col-md-3 d-grid"><button class="btn btn-primary" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="ad-content-card">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Bookings</h5>
+    <span class="fw-semibold">Total Value: KES {{ total_booking_value }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>ID</th><th>Passenger</th><th>Ride</th><th>Seats</th><th>Status</th><th>Booked Date</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for booking in bookings %}
+        <tr>
+          <td>{{ booking.id }}</td>
+          <td>{{ booking.passenger.username }}</td>
+          <td>#{{ booking.ride.id }} ({{ booking.ride.departure_location }} -> {{ booking.ride.destination_location }})</td>
+          <td>{{ booking.seats_booked }}</td>
+          <td>
+            {{ booking.get_booking_status_display }}
+            {% if booking.payment_status == 'released' %}<span class="badge text-bg-success">Completed</span>{% endif %}
+          </td>
+          <td>{{ booking.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="d-flex gap-1 flex-wrap">
+            <form method="post">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ booking.id }}"><input type="hidden" name="action" value="confirm"><button class="btn btn-sm btn-success">Confirm</button></form>
+            <form method="post">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ booking.id }}"><input type="hidden" name="action" value="cancel"><button class="btn btn-sm btn-warning">Cancel</button></form>
+            <form method="post">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ booking.id }}"><input type="hidden" name="action" value="complete"><button class="btn btn-sm btn-primary">Mark Completed</button></form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">No bookings found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Notifications - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Notifications</h1>
+  <p>Messages sent to you by other users and riders.</p>
+</section>
+
+<div class="card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Inbox</h5>
+    <div class="d-flex gap-2 align-items-center">
+      <span class="badge text-bg-primary">{{ unread_count }} unread</span>
+      <form method="post" class="m-0">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mark_all_read">
+        <button class="btn btn-sm btn-outline-secondary" type="submit">Mark all as read</button>
+      </form>
+    </div>
+  </div>
+
+  {% if notifications %}
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr><th>From</th><th>Ride</th><th>Message</th><th>Time</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for item in notifications %}
+          <tr class="{% if not item.is_read %}table-warning{% endif %}">
+            <td>{{ item.sender.username }}</td>
+            <td><a href="{% url 'ride_detail' item.ride.pk %}">Ride #{{ item.ride.pk }}</a></td>
+            <td style="max-width: 460px;">{{ item.body|truncatechars:170 }}</td>
+            <td>{{ item.sent_at|date:"Y-m-d H:i" }}</td>
+            <td>{% if item.is_read %}<span class="badge text-bg-success">Read</span>{% else %}<span class="badge text-bg-warning">Unread</span>{% endif %}</td>
+            <td class="d-flex gap-1">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'ride_detail' item.ride.pk %}">Open</a>
+              {% if not item.is_read %}
+                <form method="post" class="m-0">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="mark_read">
+                  <input type="hidden" name="message_id" value="{{ item.id }}">
+                  <button class="btn btn-sm btn-outline-secondary">Mark read</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted mb-0">No message notifications yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

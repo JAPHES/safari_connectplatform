@@ -1,0 +1,69 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}Contact Messages{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All</option>
+        <option value="unread" {% if filter_status == 'unread' %}selected{% endif %}>Unread</option>
+        <option value="replied" {% if filter_status == 'replied' %}selected{% endif %}>Replied</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary">Apply</button></div>
+  </form>
+</div>
+
+<div class="ad-content-card">
+  <h5 class="mb-3">Contact Submissions</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Date</th><th>Replied</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for message_obj in contact_messages %}
+        <tr>
+          <td>{{ message_obj.full_name }}</td>
+          <td>{{ message_obj.email }}</td>
+          <td>{{ message_obj.subject }}</td>
+          <td>{{ message_obj.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{% if message_obj.is_resolved %}<span class="badge text-bg-success">Yes</span>{% else %}<span class="badge text-bg-warning">No</span>{% endif %}</td>
+          <td class="d-flex gap-1 flex-wrap">
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewMsg{{ message_obj.id }}">View</button>
+            <form method="post">{% csrf_token %}<input type="hidden" name="message_id" value="{{ message_obj.id }}"><input type="hidden" name="action" value="mark_replied"><button class="btn btn-sm btn-success">Mark Replied</button></form>
+            <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#replyMsg{{ message_obj.id }}">Quick Reply</button>
+          </td>
+        </tr>
+
+        <div class="modal fade" id="viewMsg{{ message_obj.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Message: {{ message_obj.subject }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              <p><strong>From:</strong> {{ message_obj.full_name }} ({{ message_obj.email }})</p>
+              <p>{{ message_obj.message|linebreaksbr }}</p>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="modal fade" id="replyMsg{{ message_obj.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <form method="post">{% csrf_token %}
+              <div class="modal-header"><h5 class="modal-title">Quick Reply</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body">
+                <input type="hidden" name="message_id" value="{{ message_obj.id }}">
+                <input type="hidden" name="action" value="quick_reply">
+                <p class="small text-muted">To: {{ message_obj.email }}</p>
+                <textarea class="form-control" name="reply_body" rows="4" required></textarea>
+              </div>
+              <div class="modal-footer"><button class="btn btn-primary">Send Reply</button></div>
+            </form>
+          </div></div>
+        </div>
+      {% empty %}
+        <tr><td colspan="6">No contact messages found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

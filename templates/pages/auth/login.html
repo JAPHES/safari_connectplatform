@@ -1,0 +1,45 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Login - SafariConnect{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center g-4">
+  <div class="col-xl-5 col-lg-6">
+    <section class="sc-page-header text-center mb-3">
+      <h1>Welcome Back</h1>
+      <p>Sign in to manage rides, bookings, and your travel plans.</p>
+    </section>
+
+    <form method="post" class="card p-4 p-md-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2" role="alert">
+          {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="{{ form.username.id_for_label }}">Username or Email</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.username.errors %}<div>{{ error }}</div>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold" for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <div class="text-danger small mt-1">
+            {% for error in form.password.errors %}<div>{{ error }}</div>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <button class="btn btn-primary w-100 py-2">Sign In</button>
+      <p class="text-muted mt-3 mb-0 text-center">No account? <a href="{% url 'register' %}">Create one</a></p>
+    </form>
+  </div>
+</div>
+{% endblock %}

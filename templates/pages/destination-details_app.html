@@ -1,0 +1,38 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Destination Details - SafariConnect{% endblock %}
+{% block content %}
+{% if destination %}
+<section class="sc-page-header">
+  <h1>{{ destination.name }}</h1>
+  <p>{{ destination.region }}</p>
+</section>
+
+<div class="card p-4 mb-4">
+  <h4>About this destination</h4>
+  <p class="mb-2">{{ destination.description }}</p>
+  {% if destination.highlights %}
+    <p class="mb-0"><strong>Highlights:</strong> {{ destination.highlights }}</p>
+  {% endif %}
+</div>
+
+<h3 class="mb-3">Available Rides Nearby</h3>
+<div class="row g-3">
+  {% for ride in related_rides %}
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5>{{ ride.departure_location }} to {{ ride.destination_location }}</h5>
+          <p class="mb-1 text-muted"><i class="bi bi-clock"></i> {{ ride.departure_datetime }}</p>
+          <p class="mb-3"><strong>KES {{ ride.price_per_seat }}</strong> per seat</p>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'ride_detail' ride.pk %}">View ride</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12"><div class="card p-3"><p class="mb-0">No related rides currently.</p></div></div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card p-4"><p class="mb-0">Destination not found.</p></div>
+{% endif %}
+{% endblock %}

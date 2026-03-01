@@ -1,0 +1,14 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Offer a Ride - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Offer a Ride</h1>
+  <p>Share your upcoming trip and let travelers book available seats.</p>
+</section>
+
+<form method="post" class="card p-3 p-lg-4" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary"><i class="bi bi-send me-1"></i>Publish ride</button>
+</form>
+{% endblock %}

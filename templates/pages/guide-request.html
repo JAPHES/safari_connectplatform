@@ -1,0 +1,13 @@
+{% extends "pages/base_app.html" %}
+{% block title %}Guide Application - SafariConnect{% endblock %}
+{% block content %}
+<section class="sc-page-header">
+  <h1>Become a Tour Guide</h1>
+  <p>Apply to host tours and grow your earning opportunities.</p>
+</section>
+<form method="post" class="card p-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary">Submit request</button>
+</form>
+{% endblock %}

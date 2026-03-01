@@ -1,0 +1,104 @@
+{% extends "pages/admin/base.html" %}
+{% block admin_title %}Verification Requests{% endblock %}
+{% block admin_content %}
+<div class="ad-content-card mb-3">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if filter_status == 'approved' %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if filter_status == 'rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary" type="submit">Apply</button></div>
+  </form>
+</div>
+
+<div class="ad-content-card mb-3">
+  <h5 class="mb-3">Verification Requests</h5>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead><tr><th>Driver</th><th>Email</th><th>Documents Uploaded</th><th>Submitted</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for verification in verifications %}
+        <tr>
+          <td>{{ verification.driver.username }}</td>
+          <td>{{ verification.driver.email }}</td>
+          <td>
+            {% if verification.national_id_upload %}<span class="badge text-bg-light border">ID</span>{% endif %}
+            {% if verification.driver_license_upload %}<span class="badge text-bg-light border">License</span>{% endif %}
+            {% if verification.insurance_upload %}<span class="badge text-bg-light border">Insurance</span>{% endif %}
+          </td>
+          <td>{{ verification.submitted_at|date:"Y-m-d H:i" }}</td>
+          <td class="d-flex flex-wrap gap-1">
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#docsModal{{ verification.id }}">View Docs</button>
+            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ verification.id }}">Approve</button>
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ verification.id }}">Reject</button>
+          </td>
+        </tr>
+
+        <div class="modal fade" id="docsModal{{ verification.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">Documents - {{ verification.driver.username }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+              {% if verification.national_id_upload %}<p><a target="_blank" href="{{ verification.national_id_upload.url }}">National ID</a></p>{% endif %}
+              {% if verification.driver_license_upload %}<p><a target="_blank" href="{{ verification.driver_license_upload.url }}">Driver License</a></p>{% endif %}
+              {% if verification.insurance_upload %}<p><a target="_blank" href="{{ verification.insurance_upload.url }}">Insurance</a></p>{% endif %}
+            </div>
+          </div></div>
+        </div>
+
+        <div class="modal fade" id="approveModal{{ verification.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <form method="post">{% csrf_token %}
+              <div class="modal-header"><h5 class="modal-title">Approve Verification</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body">
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="verification_id" value="{{ verification.id }}">
+                <label class="form-label">Admin note (optional)</label>
+                <textarea class="form-control" name="reason" rows="3"></textarea>
+              </div>
+              <div class="modal-footer"><button class="btn btn-success">Approve</button></div>
+            </form>
+          </div></div>
+        </div>
+
+        <div class="modal fade" id="rejectModal{{ verification.id }}" tabindex="-1">
+          <div class="modal-dialog"><div class="modal-content">
+            <form method="post">{% csrf_token %}
+              <div class="modal-header"><h5 class="modal-title">Reject Verification</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body">
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="verification_id" value="{{ verification.id }}">
+                <label class="form-label">Reason</label>
+                <textarea class="form-control" name="reason" rows="3" required></textarea>
+              </div>
+              <div class="modal-footer"><button class="btn btn-danger">Reject</button></div>
+            </form>
+          </div></div>
+        </div>
+      {% empty %}
+        <tr><td colspan="5">No verification requests found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="ad-content-card">
+  <h6>Verification History</h6>
+  <div class="table-responsive">
+    <table class="table table-sm">
+      <thead><tr><th>Driver</th><th>Status</th><th>Reviewed At</th><th>Notes</th></tr></thead>
+      <tbody>
+      {% for item in verification_history %}
+        <tr><td>{{ item.driver.username }}</td><td>{{ item.get_background_check_status_display }}</td><td>{{ item.reviewed_at|date:"Y-m-d H:i" }}</td><td>{{ item.admin_notes|default:"-" }}</td></tr>
+      {% empty %}
+        <tr><td colspan="4">No history yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
