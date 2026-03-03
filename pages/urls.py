@@ -18,6 +18,8 @@ urlpatterns = [
     path("auth/register/", views.register, name="register"),
     path("auth/login/", views.SafariLoginView.as_view(), name="login"),
     path("auth/logout/", views.SafariLogoutView.as_view(), name="logout"),
+    path("auth/forgot-password/", views.forgot_password, name="forgot_password"),
+    path("auth/forgot-password/reset/", views.forgot_password_reset, name="forgot_password_reset"),
 
     # User dashboard and profiles
     path("dashboard/", views.dashboard, name="dashboard"),

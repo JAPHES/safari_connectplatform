@@ -3,11 +3,12 @@
 A Django web app for Kenya travel planning with destination discovery, tours, and ride-sharing between major towns.
 
 ## Features
-- User authentication: register, sign in, sign out
+- User authentication: register, sign in, sign out, and forgot password reset
 - Improved auth UX:
   - Cleaner aligned login form
   - Password show/hide toggle
   - Reduced signup help-text noise (rules shown via validation errors)
+  - Forgot-password flow: lookup by username/email, then set a new password
 - Destination and tour browsing
 - Ride listing, ride details, ride booking, and booking cancellation
 - Driver tools: offer rides, manage rides, add vehicle
@@ -50,6 +51,8 @@ A Django web app for Kenya travel planning with destination discovery, tours, an
 - Home: `/`
 - Register: `/auth/register/`
 - Login: `/auth/login/`
+- Forgot password: `/auth/forgot-password/`
+- Set new password: `/auth/forgot-password/reset/`
 - Profile edit: `/profile/<username>/edit/`
 - Rides: `/rides/`
 - My bookings: `/bookings/my/`
@@ -65,3 +68,4 @@ A Django web app for Kenya travel planning with destination discovery, tours, an
 - Custom superuser admin dashboard implemented with section-specific management pages.
 - Ride offering now requires approved driver verification.
 - In-app message notifications, reply flow, and unread badge polling are active.
+- Forgot-password flow added with two-step reset (account lookup and password update).

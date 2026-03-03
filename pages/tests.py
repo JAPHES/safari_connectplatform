@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from .models import Ride, RideBooking, UserProfile, Vehicle
@@ -87,3 +88,32 @@ class BookingFlowTests(TestCase):
             payment_status=RideBooking.PAYMENT_HELD,
         )
         self.assertEqual(booking.total_price, Decimal("3600.00"))
+
+
+class PasswordResetFlowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="resetuser", email="reset@example.com", password="oldPass123!")
+
+    def test_lookup_by_username_redirects_to_reset_page(self):
+        response = self.client.post(reverse("forgot_password"), {"identifier": "resetuser"})
+        self.assertRedirects(response, reverse("forgot_password_reset"))
+        self.assertEqual(self.client.session.get("password_reset_user_id"), self.user.pk)
+
+    def test_lookup_with_unknown_identifier_shows_error(self):
+        response = self.client.post(reverse("forgot_password"), {"identifier": "missing-user"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No account found with that email or username.")
+
+    def test_reset_page_updates_password(self):
+        session = self.client.session
+        session["password_reset_user_id"] = self.user.pk
+        session.save()
+
+        response = self.client.post(
+            reverse("forgot_password_reset"),
+            {"new_password1": "newStrongPass123!", "new_password2": "newStrongPass123!"},
+        )
+        self.assertRedirects(response, reverse("login"))
+
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("newStrongPass123!"))

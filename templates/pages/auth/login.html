@@ -37,6 +37,10 @@
         {% endif %}
       </div>
 
+      <div class="text-end mb-3">
+        <a href="{% url 'forgot_password' %}">Forgot password?</a>
+      </div>
+
       <button class="btn btn-primary w-100 py-2">Sign In</button>
       <p class="text-muted mt-3 mb-0 text-center">No account? <a href="{% url 'register' %}">Create one</a></p>
     </form>

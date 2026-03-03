@@ -60,6 +60,20 @@ class UserRegistrationForm(BootstrapFormMixin, UserCreationForm):
         return email
 
 
+class ForgotPasswordLookupForm(BootstrapFormMixin, forms.Form):
+    identifier = forms.CharField(
+        max_length=150,
+        label="Email or Username",
+        help_text="Enter the email or username you used during registration.",
+    )
+
+    def clean_identifier(self):
+        identifier = self.cleaned_data["identifier"].strip()
+        if not identifier:
+            raise ValidationError("Enter your email or username.")
+        return identifier
+
+
 class ProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = UserProfile

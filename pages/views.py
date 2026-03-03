@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.admin.views.decorators import staff_member_required
@@ -22,6 +23,7 @@ from django.views.generic import CreateView, DetailView, ListView
 from .decorators import driver_required, superuser_required
 from .forms import (
     DriverApplicationForm,
+    ForgotPasswordLookupForm,
     ProfileUpdateForm,
     RideBookingForm,
     RideMessageForm,
@@ -60,6 +62,7 @@ from .utils import (
 )
 
 User = get_user_model()
+PASSWORD_RESET_SESSION_KEY = "password_reset_user_id"
 
 
 # Existing public pages
@@ -203,6 +206,43 @@ def register(request):
         messages.success(request, "Account created successfully.")
         return redirect("dashboard")
     return render(request, "pages/auth/register.html", {"form": form})
+
+
+def forgot_password(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+
+    form = ForgotPasswordLookupForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        identifier = form.cleaned_data["identifier"]
+        user = User.objects.filter(Q(username__iexact=identifier) | Q(email__iexact=identifier)).first()
+        if not user:
+            form.add_error("identifier", "No account found with that email or username.")
+        else:
+            request.session[PASSWORD_RESET_SESSION_KEY] = user.pk
+            return redirect("forgot_password_reset")
+    return render(request, "pages/auth/forgot_password.html", {"form": form})
+
+
+def forgot_password_reset(request):
+    user_id = request.session.get(PASSWORD_RESET_SESSION_KEY)
+    if not user_id:
+        messages.error(request, "Start password reset by entering your email or username.")
+        return redirect("forgot_password")
+
+    user = User.objects.filter(pk=user_id).first()
+    if not user:
+        request.session.pop(PASSWORD_RESET_SESSION_KEY, None)
+        messages.error(request, "Account not found. Start password reset again.")
+        return redirect("forgot_password")
+
+    form = SetPasswordForm(user=user, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        request.session.pop(PASSWORD_RESET_SESSION_KEY, None)
+        messages.success(request, "Password reset successful. You can now sign in.")
+        return redirect("login")
+    return render(request, "pages/auth/reset_password.html", {"form": form, "account_user": user})
 
 
 @login_required
