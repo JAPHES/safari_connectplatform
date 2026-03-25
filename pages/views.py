@@ -2,6 +2,9 @@ import csv
 import json
 from datetime import timedelta
 
+f
+
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required
@@ -78,6 +81,12 @@ def home(request):
             "featured_tours": featured_tours,
         },
     )
+
+
+
+def health_check(request):
+    return HttpResponse("OK", content_type="text/plain")
+
 
 
 def about(request):
