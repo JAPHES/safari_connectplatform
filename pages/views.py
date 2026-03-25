@@ -2,7 +2,10 @@ import csv
 import json
 from datetime import timedelta
 
-f
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse("OK", content_type="text/plain")
 
 
 from django.contrib import messages
@@ -84,8 +87,6 @@ def home(request):
 
 
 
-def health_check(request):
-    return HttpResponse("OK", content_type="text/plain")
 
 
 
