@@ -5,29 +5,13 @@
 <section class="sc-hero-banner mb-4">
   <div class="content">
     <h1 class="mb-2">Travel Kenya, the Smart Way</h1>
-    <p class="lead mb-3">Verified rides and curated tours in one place—built for safe, seamless journeys across Kenya.</p>
+    <p class="lead mb-3">Verified rides and curated tours in one place - built for safe, seamless journeys across Kenya.</p>
     <div class="d-flex flex-wrap gap-2">
-      {% if request.user.is_authenticated %}
-        <a class="btn btn-primary" href="{% url 'ride_list' %}"><i class="bi bi-search me-1"></i> Find a Ride</a>
-        <a class="btn btn-outline-light" href="{% url 'tours' %}"><i class="bi bi-map me-1"></i> Browse Tours</a>
-      {% else %}
-        <a class="btn btn-primary" href="{% url 'how_it_works' %}"><i class="bi bi-play-circle me-1"></i> See how it works</a>
-        <a class="btn btn-outline-light" href="{% url 'about' %}"><i class="bi bi-info-circle me-1"></i> About SafariConnect</a>
-      {% endif %}
-    </div>
-    <div class="d-flex badge-row mt-3">
-      <span class="sc-chip"><i class="bi bi-shield-check"></i> Safety & SOS ready</span>
-      <span class="sc-chip"><i class="bi bi-people"></i> Verified drivers</span>
-      <span class="sc-chip"><i class="bi bi-chat-dots"></i> In-app messaging</span>
+      <a class="btn btn-primary" href="{% url 'ride_list' %}"><i class="bi bi-search me-1"></i> Find a Ride</a>
+      <a class="btn btn-outline-light" href="{% url 'tours' %}"><i class="bi bi-map me-1"></i> Browse Tours</a>
     </div>
   </div>
 </section>
-
-<div class="row g-3 mb-4">
-  <div class="col-md-4"><div class="sc-card sc-metric"><small>Trusted Route</small><strong>Nairobi - Mombasa</strong></div></div>
-  <div class="col-md-4"><div class="sc-card sc-metric"><small>Verified Drivers</small><strong>Safety First</strong></div></div>
-  <div class="col-md-4"><div class="sc-card sc-metric"><small>One Platform</small><strong>Rides + Tours</strong></div></div>
-</div>
 
 <section class="mb-4">
   <div class="d-flex justify-content-between align-items-center mb-2">
