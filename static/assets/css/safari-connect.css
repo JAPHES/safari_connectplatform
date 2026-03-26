@@ -183,6 +183,24 @@ label.form-label { font-weight: 700; color: var(--sc-ink); }
   border: 1px solid var(--sc-border);
 }
 
+.sc-hero-banner {
+  position: relative;
+  padding: clamp(2.5rem, 3vw, 3.5rem);
+  border-radius: 20px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(140deg, rgba(15, 38, 25, 0.9), rgba(28, 140, 111, 0.88)),
+              url("../img/travel/destination-1.webp") center/cover no-repeat;
+  min-height: 260px;
+  box-shadow: var(--sc-shadow);
+}
+
+.sc-hero-banner h1 { color: #fff; }
+.sc-hero-banner p { color: #e6f4ec; max-width: 640px; }
+.sc-hero-banner .badge-row { gap: 0.6rem; flex-wrap: wrap; }
+.sc-hero-banner .badge-row .sc-chip { background: rgba(255,255,255,0.08); color: #eaf5ef; }
+.sc-hero-banner .badge-row .sc-chip i { color: #f5d087; }
+
 .sc-hero::before,
 .sc-hero::after {
   content: "";

@@ -124,6 +124,23 @@
       .ad-sidebar {
         display: none;
       }
+      .ad-main {
+        padding: 0.85rem;
+      }
+      .ad-topbar {
+        padding: 0.75rem 0.9rem;
+      }
+      .ad-mobile-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+    }
+
+    @media (min-width: 993px) {
+      .ad-mobile-btn {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -167,7 +184,10 @@
 
   <main class="ad-main">
     <div class="ad-topbar">
-      <div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary btn-sm ad-mobile-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminMobileNav" aria-controls="adminMobileNav">
+          <i class="bi bi-list"></i> Menu
+        </button>
         <strong>Welcome {{ request.user.get_full_name|default:request.user.username }}</strong>
       </div>
       <div class="d-flex align-items-center gap-2">
@@ -187,6 +207,47 @@
 
     {% block admin_content %}{% endblock %}
   </main>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="adminMobileNav" aria-labelledby="adminMobileNavLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="adminMobileNavLabel">Admin Menu</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <nav class="ad-menu">
+      <a href="{% url 'admin_dashboard' %}" class="{% if active_tab == 'dashboard' %}active{% endif %}">
+        <span><i class="bi bi-speedometer2 me-2"></i>Dashboard Home</span>
+      </a>
+      <a href="{% url 'admin_users' %}" class="{% if active_tab == 'users' %}active{% endif %}">
+        <span><i class="bi bi-people me-2"></i>User Management</span>
+      </a>
+      <a href="{% url 'admin_rides' %}" class="{% if active_tab == 'rides' %}active{% endif %}">
+        <span><i class="bi bi-car-front me-2"></i>Ride Management</span>
+      </a>
+      <a href="{% url 'admin_bookings' %}" class="{% if active_tab == 'bookings' %}active{% endif %}">
+        <span><i class="bi bi-receipt me-2"></i>Booking Management</span>
+      </a>
+      <a href="{% url 'admin_verifications' %}" class="{% if active_tab == 'verifications' %}active{% endif %}">
+        <span><i class="bi bi-patch-check me-2"></i>Verification Requests</span>
+        {% if pending_verifications_count %}<span class="ad-badge">{{ pending_verifications_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_sos_alerts' %}" class="{% if active_tab == 'sos' %}active{% endif %}">
+        <span><i class="bi bi-exclamation-triangle me-2"></i>SOS Alerts</span>
+        {% if open_sos_count %}<span class="ad-badge">{{ open_sos_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_reviews' %}" class="{% if active_tab == 'reviews' %}active{% endif %}">
+        <span><i class="bi bi-chat-square-quote me-2"></i>Reviews Moderation</span>
+      </a>
+      <a href="{% url 'admin_contact_messages' %}" class="{% if active_tab == 'contacts' %}active{% endif %}">
+        <span><i class="bi bi-envelope me-2"></i>Contact Messages</span>
+        {% if unread_contacts_count %}<span class="ad-badge">{{ unread_contacts_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'admin_reports' %}" class="{% if active_tab == 'reports' %}active{% endif %}">
+        <span><i class="bi bi-bar-chart me-2"></i>Reports</span>
+      </a>
+    </nav>
+  </div>
 </div>
 
 <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
