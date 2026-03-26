@@ -9,25 +9,29 @@
   <a class="btn btn-primary" href="{% url 'offer_ride' %}"><i class="bi bi-plus-circle me-1"></i>Post new ride</a>
 </section>
 
-<div class="card p-2 p-lg-3">
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead><tr><th>ID</th><th>Route</th><th>Departure</th><th>Seats</th><th>Bookings</th><th>Status</th></tr></thead>
-      <tbody>
-        {% for ride in rides %}
-          <tr>
-            <td><a href="{% url 'ride_detail' ride.pk %}">#{{ ride.pk }}</a></td>
-            <td>{{ ride.departure_location }} to {{ ride.destination_location }}</td>
-            <td>{{ ride.departure_datetime }}</td>
-            <td>{{ ride.seats_remaining }}/{{ ride.available_seats }}</td>
-            <td>{{ ride.total_bookings }}</td>
-            <td>{{ ride.get_status_display }}</td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="6">No rides posted yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="sc-card-grid">
+  {% for ride in rides %}
+    <div class="sc-card sc-list-card">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <p class="text-muted mb-1">Ride #{{ ride.pk }}</p>
+          <h5 class="mb-1">{{ ride.departure_location }} <i class="bi bi-arrow-right"></i> {{ ride.destination_location }}</h5>
+        </div>
+        <span class="sc-tag sc-tag--accent">{{ ride.get_status_display }}</span>
+      </div>
+      <div class="sc-meta mb-2">
+        <span><i class="bi bi-clock"></i> {{ ride.departure_datetime }}</span>
+        <span><i class="bi bi-person-check"></i> Seats {{ ride.seats_remaining }}/{{ ride.available_seats }}</span>
+        <span><i class="bi bi-people"></i> Bookings {{ ride.total_bookings }}</span>
+      </div>
+      <a class="btn btn-outline-primary w-100" href="{% url 'ride_detail' ride.pk %}">Open ride</a>
+    </div>
+  {% empty %}
+    <div class="sc-empty">
+      <i class="bi bi-car-front"></i>
+      <p class="mb-2">No rides posted yet.</p>
+      <div class="action"><a class="btn btn-primary" href="{% url 'offer_ride' %}">Offer a ride</a></div>
+    </div>
+  {% endfor %}
 </div>
 {% endblock %}

@@ -6,7 +6,7 @@
   <p>Search trusted Nairobi-Mombasa rides by date, price, and seat availability.</p>
 </section>
 
-<form method="get" class="card p-3 p-lg-4 mb-4">
+<form method="get" class="sc-card p-3 p-lg-4 mb-4">
   <div class="row g-3 align-items-end">
     <div class="col-md-6 col-lg-2">{{ search_form.departure_location.label_tag }}{{ search_form.departure_location }}</div>
     <div class="col-md-6 col-lg-2">{{ search_form.destination_location.label_tag }}{{ search_form.destination_location }}</div>
@@ -20,18 +20,39 @@
 <div class="row g-3">
   {% for ride in rides %}
     <div class="col-md-6 col-xl-4">
-      <div class="card h-100">
+      <div class="sc-card h-100 sc-list-card">
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">{{ ride.departure_location }} <i class="bi bi-arrow-right"></i> {{ ride.destination_location }}</h5>
-          <p class="mb-1 text-muted"><i class="bi bi-clock"></i> {{ ride.departure_datetime }}</p>
-          <p class="mb-1"><strong>KES {{ ride.price_per_seat }}</strong> per seat</p>
-          <p class="mb-3">Seats left: <strong>{{ ride.seats_remaining }}</strong></p>
-          <a href="{% url 'ride_detail' ride.pk %}" class="btn btn-outline-primary mt-auto">View details</a>
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="card-title mb-0">{{ ride.departure_location }} <i class="bi bi-arrow-right"></i> {{ ride.destination_location }}</h5>
+            <span class="sc-flag">KES {{ ride.price_per_seat }} / seat</span>
+          </div>
+          <div class="sc-meta mb-2">
+            <span><i class="bi bi-clock"></i> {{ ride.departure_datetime }}</span>
+            <span><i class="bi bi-people"></i> {{ ride.seats_remaining }} seats left</span>
+          </div>
+          {% if ride.driver %}
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <div class="sc-avatar sm d-inline-flex align-items-center justify-content-center"><i class="bi bi-person text-muted"></i></div>
+              <div class="small text-muted">Driver: {{ ride.driver.username }}</div>
+            </div>
+          {% endif %}
+          <div class="d-flex gap-2 mt-auto">
+            <a href="{% url 'ride_detail' ride.pk %}" class="btn btn-primary flex-grow-1">View details</a>
+            <a href="{% url 'ride_detail' ride.pk %}#book" class="btn btn-outline-primary">Book</a>
+          </div>
         </div>
       </div>
     </div>
   {% empty %}
-    <div class="col-12"><div class="card p-4"><p class="mb-0">No rides found for your filters.</p></div></div>
+    <div class="col-12">
+      <div class="sc-empty">
+        <i class="bi bi-signpost-split"></i>
+        <p class="mb-2">No rides match your filters right now.</p>
+        <div class="action">
+          <a class="btn btn-primary" href="{% url 'ride_list' %}">Reset filters</a>
+        </div>
+      </div>
+    </div>
   {% endfor %}
 </div>
 {% endblock %}

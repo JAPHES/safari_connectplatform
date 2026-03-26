@@ -5,7 +5,7 @@
   <h1>Add Vehicle</h1>
   <p>Register your vehicle before publishing rides.</p>
 </section>
-<form method="post" enctype="multipart/form-data" class="card p-4">
+<form method="post" enctype="multipart/form-data" class="sc-card p-4">
   {% csrf_token %}
   {{ form.as_p }}
   <button class="btn btn-primary">Save vehicle</button>

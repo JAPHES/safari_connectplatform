@@ -85,11 +85,6 @@ def home(request):
         },
     )
 
-
-
-
-
-
 def about(request):
     return render(request, "pages/about_app.html")
 

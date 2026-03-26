@@ -1,71 +1,56 @@
-# SafariConnect (Kenya Travel + Rides)
+# SafariConnect - Kenya travel & ride-sharing
 
-A Django web app for Kenya travel planning with destination discovery, tours, and ride-sharing between major towns.
+A Django 6.0 app for planning trips across Kenya: discover destinations, book rides, message drivers, and manage bookings from a unified dashboard.
 
-## Features
-- User authentication: register, sign in, sign out, and forgot password reset
-- Improved auth UX:
-  - Cleaner aligned login form
-  - Password show/hide toggle
-  - Reduced signup help-text noise (rules shown via validation errors)
-  - Forgot-password flow: lookup by username/email, then set a new password
-- Destination and tour browsing
-- Ride listing, ride details, ride booking, and booking cancellation
-- Driver tools: offer rides, manage rides, add vehicle
-  - Offer ride is restricted to approved drivers only
-- Safety tools: SOS and Safety FAQ accordion
-- Profile image support:
-  - Upload avatar in profile edit
-  - Avatar visible in navbar, dashboard, and profile page
-  - Cache-busted avatar URLs for immediate refresh after update
-- Home page enhancements:
-  - Coverage cards for Kenyan towns (Nairobi, Mombasa, Nakuru, Kisumu)
-  - Global footer across pages
-- Messaging and notifications:
-  - Driver/passenger ride messaging with reply support
-  - Notifications page for received messages
-  - Dashboard preview of unread messages
-  - Live top-bar bell badge auto-refresh (unread count)
-- Superuser admin dashboard:
-  - Custom `/admin-dashboard/` area (separate from Django admin)
-  - Users, rides, bookings, verifications, SOS, reviews, contact messages, reports
-  - Action buttons, filters, charts, and CSV exports
+## Core Features
+- Auth flows: register, login, logout, and two-step forgot-password reset (lookup then password update).
+- UX polish: aligned forms, password show/hide toggle, reduced signup help text.
+- Rides: list rides, view details, book, cancel, and message drivers; ride offering limited to verified drivers.
+- Destinations & tours: browse Kenyan towns (Nairobi, Mombasa, Nakuru, Kisumu) with hero/home content and global footer.
+- Safety: SOS trigger and accordion-based Safety FAQ.
+- Profiles: custom `pages.User` model with avatar upload shown in navbar/dashboard/profile; cache-busted URLs for instant refresh.
+- Notifications: in-app messaging, replies, notifications page, unread badge with auto-refresh.
+- Admin: custom `/admin-dashboard/` (separate from Django admin) covering users, rides, bookings, verifications, SOS, reviews, contact messages, and reports with filters, actions, and CSV export.
 
-## Project Structure
-- `kenya_travel/`: Django project settings and root URL config
-- `pages/`: app models, views, forms, URLs, and tests
-- `templates/pages/`: app templates (including auth pages)
-- `static/assets/`: CSS, JS, images, and vendor libraries
-- `requirements.txt`: project dependencies
+## Stack & Prerequisites
+- Python 3.11+ recommended
+- Django 6.0, Gunicorn, Whitenoise
+- SQLite by default; PostgreSQL via `DATABASE_URL` (Render-ready)
+- Optional: Redis for cache/channels/Celery
 
-## Run Locally
-1. Create and activate a virtual environment.
-2. Install dependencies:
-   `pip install -r requirements.txt`
-3. Apply database migrations:
-   `python manage.py migrate`
-4. Start development server:
-   `python manage.py runserver`
+## Configuration (.env)
+Create a `.env` in project root (sample values exist in the checked-in `.env`; do not commit secrets). Key variables:
+- `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`
+- `DATABASE_URL` (set to your Postgres URI; defaults to SQLite if omitted)
+- Email: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`
+- M-Pesa (Daraja): `MPESA_ENVIRONMENT`, `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY`, `MPESA_CALLBACK_URL`
+- Redis/Celery: `REDIS_URL`, `CELERY_BROKER_URL`, `CELERY_RESULT_BACKEND`
+
+## Local Development
+1. Create and activate a virtualenv.
+2. Install deps: `pip install -r requirements.txt`
+3. Apply migrations: `python manage.py migrate`
+4. (Optional) Create a superuser for dashboards: `python manage.py createsuperuser`
+5. Run server: `python manage.py runserver`
+
+Static files: served by Whitenoise in dev; run `python manage.py collectstatic` for production assets.
+
+## Testing
+- Run all tests: `python manage.py test`
+- Focused app tests: `python manage.py test pages`
 
 ## Useful Routes
-- Home: `/`
-- Register: `/auth/register/`
-- Login: `/auth/login/`
-- Forgot password: `/auth/forgot-password/`
-- Set new password: `/auth/forgot-password/reset/`
-- Profile edit: `/profile/<username>/edit/`
-- Rides: `/rides/`
-- My bookings: `/bookings/my/`
-- Safety FAQ: `/safety-tips/`
-- Notifications: `/notifications/`
-- Admin dashboard (superuser only): `/admin-dashboard/`
+- Home `/`
+- Register `/auth/register/`
+- Login `/auth/login/`
+- Forgot password `/auth/forgot-password/` then `/auth/forgot-password/reset/`
+- Profile edit `/profile/<username>/edit/`
+- Rides `/rides/` and bookings `/bookings/my/`
+- Safety FAQ `/safety-tips/`
+- Notifications `/notifications/`
+- Admin dashboard (superuser) `/admin-dashboard/`
 
-## Recent Implementation Notes
-- Logout now uses secure POST forms (compatible with Django 5.2 `LogoutView`).
-- Ride booking validation fixed to prevent `RideBooking has no ride` during form validation.
-- Username rules were relaxed and signup help-text noise reduced.
-  - New migration added: `pages/migrations/0002_alter_user_username.py`
-- Custom superuser admin dashboard implemented with section-specific management pages.
-- Ride offering now requires approved driver verification.
-- In-app message notifications, reply flow, and unread badge polling are active.
-- Forgot-password flow added with two-step reset (account lookup and password update).
+## Deployment Notes (Render-friendly)
+- Procfile runs: `gunicorn --chdir /opt/render/project/src kenya_travel.wsgi:application --bind=0.0.0.0:10000 --workers=2 --threads=4 --timeout=120`
+- Ensure `DJANGO_ALLOWED_HOSTS` includes Render hostname; `settings.py` auto-adds `RENDER_EXTERNAL_HOSTNAME` and `safari-connect.onrender.com`.
+- Set `DEBUG=False`, configure `DATABASE_URL`, email, and M-Pesa secrets; add `REDIS_URL` to enable Redis-backed cache/channels.

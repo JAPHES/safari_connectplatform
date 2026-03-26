@@ -6,30 +6,33 @@
   <p>Your activity overview across rides, bookings, messages, and verification.</p>
 </section>
 
-<div class="card p-3 mb-4">
+<div class="sc-card p-3 mb-4">
   <div class="d-flex align-items-center gap-3">
     {% if profile.avatar %}
-      <img src="{{ profile.avatar.url }}?v={{ profile.updated_at|date:'U' }}" alt="Your profile avatar" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+      <img src="{{ profile.avatar.url }}?v={{ profile.updated_at|date:'U' }}" alt="Your profile avatar" class="sc-avatar lg">
     {% else %}
-      <div class="d-flex align-items-center justify-content-center rounded-circle border" style="width: 64px; height: 64px;">
+      <div class="d-flex align-items-center justify-content-center rounded-circle border" style="width: 86px; height: 86px;">
         <i class="bi bi-person-circle fs-3 text-muted"></i>
       </div>
     {% endif %}
     <div>
       <h5 class="mb-1">{{ request.user.username }}</h5>
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'profile_update' request.user.username %}">Update profile photo</a>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'profile_update' request.user.username %}">Update profile photo</a>
+        <a class="btn btn-sm btn-light" href="{% url 'profile_detail' request.user.username %}">View profile</a>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Rides Offered</small><strong>{{ rides_offered }}</strong></div></div>
-  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Ride Bookings</small><strong>{{ ride_bookings }}</strong></div></div>
-  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Tour Bookings</small><strong>{{ tour_bookings }}</strong></div></div>
-  <div class="col-md-6 col-xl-3"><div class="card sc-metric"><small>Unread Messages</small><strong>{{ unread_messages }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="sc-card sc-metric"><small>Rides Offered</small><strong>{{ rides_offered }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="sc-card sc-metric"><small>Ride Bookings</small><strong>{{ ride_bookings }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="sc-card sc-metric"><small>Tour Bookings</small><strong>{{ tour_bookings }}</strong></div></div>
+  <div class="col-md-6 col-xl-3"><div class="sc-card sc-metric"><small>Unread Messages</small><strong>{{ unread_messages }}</strong></div></div>
 </div>
 
-<div class="card p-4">
+<div class="sc-card p-4">
   <h5 class="mb-3">Verification Status</h5>
   <div class="row g-2 mb-3">
     <div class="col-md-6"><span class="text-muted">Profile verified:</span> {{ verification.profile_verified }}</div>
@@ -44,7 +47,7 @@
   </div>
 </div>
 
-<div class="card p-4 mt-4">
+<div class="sc-card p-4 mt-4">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h5 class="mb-0">Message Notifications</h5>
     <a class="btn btn-sm btn-outline-primary" href="{% url 'notifications' %}">View all</a>
@@ -62,7 +65,11 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="text-muted mb-0">No unread message notifications.</p>
+    <div class="sc-empty">
+      <i class="bi bi-bell"></i>
+      <p class="mb-2">No unread message notifications.</p>
+      <div class="action"><a class="btn btn-primary btn-sm" href="{% url 'notifications' %}">Go to notifications</a></div>
+    </div>
   {% endif %}
 </div>
 {% endblock %}

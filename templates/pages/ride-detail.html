@@ -2,26 +2,39 @@
 {% block title %}Ride Details - SafariConnect{% endblock %}
 {% block content %}
 <section class="sc-page-header">
-  <h1>Ride #{{ ride.id }}</h1>
-  <p>{{ ride.departure_location }} to {{ ride.destination_location }} | {{ ride.get_status_display }}</p>
+  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+    <div>
+      <h1>Ride #{{ ride.id }}</h1>
+      <p class="d-flex flex-wrap gap-2 align-items-center mb-0">
+        <span class="fw-semibold">{{ ride.departure_location }} to {{ ride.destination_location }}</span>
+        <span class="sc-tag sc-tag--accent"><i class="bi bi-geo-alt"></i> {{ ride.get_status_display }}</span>
+      </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="sc-pill"><i class="bi bi-currency-exchange"></i> KES {{ ride.price_per_seat }} / seat</span>
+      <span class="sc-pill"><i class="bi bi-clock-history"></i> {{ ride.departure_datetime }}</span>
+    </div>
+  </div>
 </section>
 
 <div class="row g-4">
   <div class="col-lg-7">
-    <div class="card p-4">
+    <div class="sc-card p-4">
       <h4 class="mb-3">Trip Information</h4>
-      <p><strong>Route:</strong> {{ ride.departure_location }} to {{ ride.destination_location }}</p>
-      <p><strong>Departure:</strong> {{ ride.departure_datetime }}</p>
-      <p><strong>Driver:</strong> <a href="{% url 'profile_detail' ride.driver.username %}">{{ ride.driver.username }}</a> ({{ driver_rating }}/5)</p>
-      <p><strong>Vehicle:</strong> {% if ride.vehicle %}{{ ride.vehicle }}{% else %}Not assigned{% endif %}</p>
-      <p><strong>Price per seat:</strong> KES {{ ride.price_per_seat }}</p>
-      <p><strong>Seats remaining:</strong> {{ ride.seats_remaining }}</p>
+      <div class="sc-meta mb-3">
+        <span><i class="bi bi-clock"></i> {{ ride.departure_datetime }}</span>
+        <span><i class="bi bi-currency-exchange"></i> KES {{ ride.price_per_seat }} / seat</span>
+        <span><i class="bi bi-people"></i> Seats left: {{ ride.seats_remaining }}</span>
+      </div>
+      <p class="mb-2"><strong>Route:</strong> {{ ride.departure_location }} to {{ ride.destination_location }}</p>
+      <p class="mb-2"><strong>Driver:</strong> <a href="{% url 'profile_detail' ride.driver.username %}">{{ ride.driver.username }}</a> ({{ driver_rating }}/5)</p>
+      <p class="mb-2"><strong>Vehicle:</strong> {% if ride.vehicle %}{{ ride.vehicle }}{% else %}Not assigned{% endif %}</p>
       <p class="mb-0"><strong>Notes:</strong> {{ ride.notes|default:"No extra notes" }}</p>
     </div>
   </div>
   <div class="col-lg-5">
     {% if request.user.is_authenticated %}
-      <div class="card p-4 mb-3">
+      <div class="sc-card p-4 mb-3 sc-sticky-card" id="book">
         <h5>Book seats</h5>
         <form method="post" action="{% url 'book_ride' ride.pk %}">
           {% csrf_token %}
@@ -29,7 +42,7 @@
           <button class="btn btn-success w-100">Book now</button>
         </form>
       </div>
-      <div class="card p-4">
+      <div class="sc-card p-4 sc-sticky-card">
         <h5>Message driver</h5>
         <form id="messageForm" method="post" action="{% url 'send_ride_message' ride.pk %}">
           {% csrf_token %}
@@ -40,22 +53,20 @@
         </form>
       </div>
     {% else %}
-      <div class="card p-4"><p class="mb-0"><a href="{% url 'login' %}">Login</a> to book this ride.</p></div>
+      <div class="sc-card p-4"><p class="mb-0"><a href="{% url 'login' %}">Login</a> to book this ride.</p></div>
     {% endif %}
   </div>
 </div>
 
 {% if request.user.is_authenticated %}
-  <div class="card p-4 mt-4">
+  <div class="sc-card p-4 mt-4">
     <h5 class="mb-3">Conversation</h5>
     {% if messages_thread %}
-      <div class="d-flex flex-column gap-2">
+      <div class="sc-chat">
         {% for msg in messages_thread %}
-          <div class="border rounded p-3 {% if msg.recipient == request.user and not msg.is_read %}border-warning{% endif %}">
+          <div class="sc-bubble {% if msg.sender == request.user %}me{% endif %} {% if msg.recipient == request.user and not msg.is_read %}border-warning{% endif %}">
             <div class="d-flex justify-content-between align-items-center mb-1">
-              <div class="small">
-                <strong>{{ msg.sender.username }}</strong> to <strong>{{ msg.recipient.username }}</strong>
-              </div>
+              <div class="small"><strong>{{ msg.sender.username }}</strong> → <strong>{{ msg.recipient.username }}</strong></div>
               <small class="text-muted">{{ msg.sent_at|date:"Y-m-d H:i" }}</small>
             </div>
             <p class="mb-2">{{ msg.body }}</p>
@@ -73,7 +84,7 @@
         {% endfor %}
       </div>
     {% else %}
-      <p class="text-muted mb-0">No conversation yet.</p>
+      <div class="sc-empty">No conversation yet.</div>
     {% endif %}
   </div>
 {% endif %}

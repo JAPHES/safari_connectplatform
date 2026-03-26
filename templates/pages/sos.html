@@ -5,10 +5,10 @@
   <h1>SOS Emergency Alert</h1>
   <p>If you feel unsafe, send an alert immediately and our team will respond.</p>
 </section>
-<div class="card p-3 mb-3 border-danger">
-  <p class="text-danger mb-0"><i class="bi bi-exclamation-triangle-fill me-1"></i>Use this only for real emergencies during active rides.</p>
+<div class="sc-sos mb-3">
+  <p class="text-danger mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i>Use this only for real emergencies during active rides.</p>
 </div>
-<form method="post" class="card p-4">
+<form method="post" class="sc-card p-4">
   {% csrf_token %}
   {{ form.as_p }}
   <button class="btn btn-danger">Send SOS</button>

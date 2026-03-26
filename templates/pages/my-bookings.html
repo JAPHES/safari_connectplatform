@@ -6,34 +6,39 @@
   <p>Track all your current and past ride reservations.</p>
 </section>
 
-<div class="card p-2 p-lg-3">
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead><tr><th>Ride</th><th>Seats</th><th>Total</th><th>Booking</th><th>Payment</th><th>Action</th></tr></thead>
-      <tbody>
-        {% for booking in bookings %}
-          <tr>
-            <td><a href="{% url 'ride_detail' booking.ride.pk %}">#{{ booking.ride.pk }}</a></td>
-            <td>{{ booking.seats_booked }}</td>
-            <td>KES {{ booking.total_price }}</td>
-            <td>{{ booking.get_booking_status_display }}</td>
-            <td>{{ booking.get_payment_status_display }}</td>
-            <td>
-              {% if booking.booking_status != 'cancelled' %}
-                <form method="post" action="{% url 'cancel_ride_booking' booking.pk %}">
-                  {% csrf_token %}
-                  <button class="btn btn-sm btn-outline-danger">Cancel</button>
-                </form>
-              {% else %}
-                <span class="text-muted">Closed</span>
-              {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="6">No bookings yet.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="sc-card-grid">
+  {% for booking in bookings %}
+    <div class="sc-card sc-list-card">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <p class="text-muted mb-1">Ride #{{ booking.ride.pk }}</p>
+          <h5 class="mb-1">{{ booking.ride.departure_location }} → {{ booking.ride.destination_location }}</h5>
+        </div>
+        <span class="sc-tag">{{ booking.get_booking_status_display }}</span>
+      </div>
+      <div class="sc-meta mb-2">
+        <span><i class="bi bi-person"></i> Seats {{ booking.seats_booked }}</span>
+        <span><i class="bi bi-cash-coin"></i> KES {{ booking.total_price }}</span>
+        <span class="sc-tag sc-tag--accent">{{ booking.get_payment_status_display }}</span>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary flex-grow-1" href="{% url 'ride_detail' booking.ride.pk %}">View ride</a>
+        {% if booking.booking_status != 'cancelled' %}
+          <form method="post" action="{% url 'cancel_ride_booking' booking.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger">Cancel</button>
+          </form>
+        {% else %}
+          <button class="btn btn-light" disabled>Closed</button>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <div class="sc-empty">
+      <i class="bi bi-ticket-perforated"></i>
+      <p class="mb-2">No bookings yet.</p>
+      <div class="action"><a class="btn btn-primary" href="{% url 'ride_list' %}">Find a ride</a></div>
+    </div>
+  {% endfor %}
 </div>
 {% endblock %}

@@ -6,10 +6,10 @@
   <p>User details, trust score, and account verification snapshot.</p>
 </section>
 
-<div class="card p-4">
+<div class="sc-card p-4">
   <div class="d-flex align-items-center gap-3 mb-4">
     {% if profile and profile.avatar %}
-      <img src="{{ profile.avatar.url }}?v={{ profile.updated_at|date:'U' }}" alt="{{ profile_user.username }} avatar" style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover;">
+      <img src="{{ profile.avatar.url }}?v={{ profile.updated_at|date:'U' }}" alt="{{ profile_user.username }} avatar" class="sc-avatar lg">
     {% else %}
       <div class="d-flex align-items-center justify-content-center rounded-circle border" style="width: 88px; height: 88px;">
         <i class="bi bi-person-circle fs-1 text-muted"></i>
@@ -26,8 +26,8 @@
     <div class="col-md-6"><span class="text-muted">Rating</span><br><strong>{{ rating }}/5</strong></div>
     {% if profile %}
       <div class="col-md-6"><span class="text-muted">Phone</span><br>{{ profile.phone_number|default:"-" }}</div>
-      <div class="col-md-6"><span class="text-muted">User type</span><br>{{ profile.get_user_type_display }}</div>
-      <div class="col-md-6"><span class="text-muted">Verified</span><br>{{ profile.is_verified }}</div>
+      <div class="col-md-6"><span class="text-muted">User type</span><br><span class="sc-tag">{{ profile.get_user_type_display }}</span></div>
+      <div class="col-md-6"><span class="text-muted">Verified</span><br>{% if profile.is_verified %}<span class="sc-tag"><i class="bi bi-check-circle-fill"></i> Verified</span>{% else %}<span class="sc-tag sc-tag--muted">Pending</span>{% endif %}</div>
     {% endif %}
   </div>
 

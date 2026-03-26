@@ -5,11 +5,11 @@
   <h1>Edit Profile</h1>
   <p>Keep your contact and safety information accurate.</p>
 </section>
-<form method="post" enctype="multipart/form-data" class="card p-4">
+<form method="post" enctype="multipart/form-data" class="sc-card p-4">
   {% csrf_token %}
   {% if request.user.profile.avatar %}
     <div class="mb-3 d-flex align-items-center gap-3">
-      <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="Current avatar" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover;">
+      <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="Current avatar" class="sc-avatar">
       <div>
         <div class="fw-semibold">Current profile image</div>
         <small class="text-muted">Upload a new image to replace it.</small>
