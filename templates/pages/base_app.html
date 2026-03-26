@@ -377,7 +377,14 @@
         {% if request.user.is_superuser %}
           <a class="sc-top-btn sc-top-btn--link" href="{% url 'admin_dashboard' %}"><i class="bi bi-kanban"></i> Admin Dashboard</a>
         {% endif %}
-        <a class="sc-top-btn sc-top-btn--link" href="{% url 'profile_detail' request.user.username %}"><i class="bi bi-person-circle"></i> Profile</a>
+        <a class="sc-top-btn sc-top-btn--link d-none d-md-inline-flex" href="{% url 'profile_detail' request.user.username %}">
+          {% if request.user.profile.avatar %}
+            <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="{{ request.user.username }} avatar" class="sc-user-avatar me-2">
+          {% else %}
+            <span class="sc-user-avatar me-2 d-inline-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.16);"><i class="bi bi-person"></i></span>
+          {% endif %}
+          <span>Profile</span>
+        </a>
         <a class="sc-top-btn sc-notif-btn" href="{% url 'notifications' %}" id="scNotificationsBtn" title="Notifications">
           <i class="bi bi-bell"></i>
           <span id="scUnreadBadge" class="sc-notif-badge">0</span>

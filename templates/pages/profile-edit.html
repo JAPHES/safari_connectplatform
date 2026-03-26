@@ -12,7 +12,7 @@
       <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="Current avatar" class="sc-avatar">
       <div>
         <div class="fw-semibold">Current profile image</div>
-        <small class="text-muted">Upload a new image to replace it.</small>
+        <small class="text-muted">Upload a new image to replace it. Cache-busted for immediate refresh.</small>
       </div>
     </div>
   {% endif %}
