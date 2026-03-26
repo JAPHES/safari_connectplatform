@@ -26,6 +26,7 @@ urlpatterns = [
     path("notifications/", views.notifications, name="notifications"),
     path("profile/<str:username>/", views.profile_detail, name="profile_detail"),
     path("profile/<str:username>/edit/", views.profile_update, name="profile_update"),
+    path("profile/<str:username>/avatar/delete/", views.profile_avatar_delete, name="profile_avatar_delete"),
     path("profile/<str:username>/verify/", views.profile_verify, name="profile_verify"),
 
     # Ride-sharing

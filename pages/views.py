@@ -2,11 +2,6 @@ import csv
 import json
 from datetime import timedelta
 
-from django.http import HttpResponse
-
-def health_check(request):
-    return HttpResponse("OK", content_type="text/plain")
-
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
@@ -87,6 +82,10 @@ def home(request):
 
 def about(request):
     return render(request, "pages/about_app.html")
+
+def health_check(request):
+    return HttpResponse("OK", content_type="text/plain")
+
 
 
 @login_required
@@ -312,13 +311,37 @@ def profile_update(request, username):
         messages.error(request, "You can only edit your own profile.")
         return redirect("profile_detail", username=request.user.username)
 
-    form = ProfileUpdateForm(request.POST or None, request.FILES or None, instance=request.user.profile)
+    profile = request.user.profile
+    previous_avatar_name = profile.avatar.name if profile.avatar else None
+    form = ProfileUpdateForm(request.POST or None, request.FILES or None, instance=profile)
     if request.method == "POST" and form.is_valid():
-        form.save()
+        profile = form.save()
+        current_avatar_name = profile.avatar.name if profile.avatar else None
+        if "avatar" in form.changed_data and previous_avatar_name and previous_avatar_name != current_avatar_name:
+            profile.avatar.storage.delete(previous_avatar_name)
         messages.success(request, "Profile updated.")
         return redirect("profile_detail", username=request.user.username)
 
     return render(request, "pages/profile-edit.html", {"form": form})
+
+
+@login_required
+@require_http_methods(["POST"])
+def profile_avatar_delete(request, username):
+    if request.user.username != username:
+        messages.error(request, "You can only edit your own profile.")
+        return redirect("profile_detail", username=request.user.username)
+
+    profile = request.user.profile
+    if profile.avatar:
+        profile.avatar.delete(save=False)
+        profile.avatar = None
+        profile.save(update_fields=["avatar", "updated_at"])
+        messages.success(request, "Profile image removed.")
+    else:
+        messages.info(request, "No profile image to remove.")
+
+    return redirect("profile_update", username=username)
 
 
 @login_required

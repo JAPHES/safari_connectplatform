@@ -7,15 +7,28 @@
 </section>
 <form method="post" enctype="multipart/form-data" class="sc-card p-4">
   {% csrf_token %}
-  {% if request.user.profile.avatar %}
-    <div class="mb-3 d-flex align-items-center gap-3">
+  <div class="mb-3 d-flex align-items-center gap-3">
+    {% if request.user.profile.avatar %}
       <img src="{{ request.user.profile.avatar.url }}?v={{ request.user.profile.updated_at|date:'U' }}" alt="Current avatar" class="sc-avatar">
-      <div>
+      <div class="d-flex flex-column flex-wrap gap-1">
         <div class="fw-semibold">Current profile image</div>
-        <small class="text-muted">Upload a new image to replace it. Cache-busted for immediate refresh.</small>
+        <small class="text-muted">Upload a new image to replace it, or remove it entirely.</small>
+        <button type="submit"
+                class="btn btn-outline-danger btn-sm"
+                formaction="{% url 'profile_avatar_delete' request.user.username %}"
+                formmethod="post"
+                formnovalidate>
+          Remove avatar
+        </button>
       </div>
-    </div>
-  {% endif %}
+    {% else %}
+      <div class="sc-avatar d-inline-flex align-items-center justify-content-center bg-light border"><i class="bi bi-person text-muted"></i></div>
+      <div>
+        <div class="fw-semibold">No avatar yet</div>
+        <small class="text-muted">Add a profile image to personalize your account.</small>
+      </div>
+    {% endif %}
+  </div>
   {{ form.as_p }}
   <button class="btn btn-primary">Save changes</button>
 </form>
