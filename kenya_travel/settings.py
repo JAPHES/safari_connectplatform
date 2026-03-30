@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pages.apps.PagesConfig',
     'whitenoise.runserver_nostatic',  # Add whitenoise for static files
+
 ]
 
 MIDDLEWARE = [
