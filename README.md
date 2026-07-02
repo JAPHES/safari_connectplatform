@@ -15,7 +15,7 @@ A Django 6.0 app for planning trips across Kenya: discover destinations, book ri
 ## Stack & Prerequisites
 - Python 3.11+ recommended
 - Django 6.0, Gunicorn, Whitenoise
-- SQLite by default; PostgreSQL via `DATABASE_URL` (Render-ready)
+- SQLite by default; PostgreSQL via `DATABASE_URL` (Railway-ready)
 - Optional: Redis for cache/channels/Celery
 
 ## Configuration (.env)
@@ -50,7 +50,35 @@ Static files: served by Whitenoise in dev; run `python manage.py collectstatic` 
 - Notifications `/notifications/`
 - Admin dashboard (superuser) `/admin-dashboard/`
 
-## Deployment Notes (Render-friendly)
-- Procfile runs: `gunicorn --chdir /opt/render/project/src kenya_travel.wsgi:application --bind=0.0.0.0:10000 --workers=2 --threads=4 --timeout=120`
-- Ensure `DJANGO_ALLOWED_HOSTS` includes Render hostname; `settings.py` auto-adds `RENDER_EXTERNAL_HOSTNAME` and `safari-connect.onrender.com`.
-- Set `DEBUG=False`, configure `DATABASE_URL`, email, and M-Pesa secrets; add `REDIS_URL` to enable Redis-backed cache/channels.
+## Deployment Notes (Railway)
+Railway deployment is configured in `railway.json`.
+
+- Build command: `python manage.py collectstatic --noinput`
+- Pre-deploy command: `python manage.py migrate --noinput`
+- Start command: `gunicorn kenya_travel.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --threads=4 --timeout=120`
+- `settings.py` auto-adds `RAILWAY_PUBLIC_DOMAIN` and `RAILWAY_PRIVATE_DOMAIN` to `ALLOWED_HOSTS`.
+- If you attach a Railway volume, uploaded media will be stored under `$RAILWAY_VOLUME_MOUNT_PATH/media`.
+
+### Deploy on Railway
+1. Push this repository to GitHub.
+2. In Railway, create a new project and choose **Deploy from GitHub repo**.
+3. Add a PostgreSQL service to the Railway project.
+4. In the Django app service, add this variable: `DATABASE_URL=${{Postgres.DATABASE_URL}}`.
+5. Add required Django/app variables:
+   - `DJANGO_SECRET_KEY=<strong secret>`
+   - `DJANGO_DEBUG=False`
+   - `DJANGO_ALLOWED_HOSTS=<your custom domain if any>`
+   - `DJANGO_CSRF_TRUSTED_ORIGINS=https://<your custom domain>` if you use a custom domain
+   - Email, M-Pesa, `OPENWEATHER_API_KEY`, and optional Redis variables as needed
+6. Deploy the service. Railway will run `collectstatic`, run migrations, then start Gunicorn on `$PORT`.
+7. After deployment, open the app service Settings > Networking and click **Generate Domain**.
+
+### Important Secret Cleanup
+`.env` is currently tracked in this repository. Do not push secrets to GitHub or Railway. Keep the local file, but remove it from Git tracking before your next commit:
+
+```bash
+git rm --cached .env
+git commit -m "Stop tracking local environment file"
+```
+
+If this repository has already been pushed publicly, rotate the secrets stored in `.env`.

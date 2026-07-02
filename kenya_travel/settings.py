@@ -1,10 +1,13 @@
 import os
 from pathlib import Path
-import dj_database_url
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load local environment variables during development only.
+# Railway variables should come from the service Variables tab.
+if not os.getenv("RAILWAY_ENVIRONMENT_NAME"):
+    load_dotenv()
+
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,15 +15,27 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-secret-key-change-me")
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 
 # ALLOWED_HOSTS configuration
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+    if host.strip()
+]
 
-# Auto-add Render domain if available
-if os.getenv("RENDER_EXTERNAL_HOSTNAME"):
-    ALLOWED_HOSTS.append(os.getenv("RENDER_EXTERNAL_HOSTNAME"))
+# Railway exposes the public domain through this variable after you generate a domain.
+for railway_host in (os.getenv("RAILWAY_PUBLIC_DOMAIN"), os.getenv("RAILWAY_PRIVATE_DOMAIN")):
+    if railway_host and railway_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(railway_host)
 
-# Also ensure safari-connect.onrender.com is included
-if "safari-connect.onrender.com" not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append("safari-connect.onrender.com")
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+if os.getenv("RAILWAY_PUBLIC_DOMAIN"):
+    railway_origin = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN')}"
+    if railway_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(railway_origin)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -68,11 +83,10 @@ ASGI_APPLICATION = 'kenya_travel.asgi.application'
 
 # Database configuration
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -94,7 +108,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if os.getenv("RAILWAY_VOLUME_MOUNT_PATH"):
+    MEDIA_ROOT = Path(os.getenv("RAILWAY_VOLUME_MOUNT_PATH")) / "media"
+else:
+    MEDIA_ROOT = Path(os.getenv("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 
 AUTH_USER_MODEL = "pages.User"
 
@@ -153,6 +170,7 @@ CHANNEL_LAYERS = {
 
 # Security settings for production
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
